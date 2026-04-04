@@ -43,7 +43,6 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--g0);c
 /* HEADER */
 .hdr{background:linear-gradient(135deg,var(--blue-d) 0%,var(--blue) 55%,var(--blue-m) 100%);color:#fff;padding:14px 18px 12px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;box-shadow:0 3px 16px rgba(15,47,106,.3);}
 .hdr-logo{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.hdr-logo svg{width:22px;height:22px;fill:#fff;}
 .hdr-logo img{width:34px;height:34px;object-fit:contain;border-radius:6px;}
 .hdr-text h1{font-size:13px;font-weight:700;line-height:1.3;}
 .hdr-text p{font-size:10px;opacity:.75;margin-top:1px;}
@@ -52,6 +51,22 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--g0);c
 
 /* MAIN */
 .main{padding:16px 14px 100px;max-width:600px;margin:0 auto;}
+
+/* ═══════════════════════════════════
+   FILTER BAR — NEW
+═══════════════════════════════════ */
+.filter-bar{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:12px 14px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px;}
+.filter-ttl{font-size:11px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px;}
+.filter-ttl svg{width:13px;height:13px;fill:var(--g5);}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px;}
+.filter-lbl{font-size:10px;font-weight:600;color:var(--g5);}
+.filter-select{padding:7px 28px 7px 10px;border:1.5px solid var(--g2);border-radius:8px;font-size:12px;font-family:inherit;color:var(--g9);background:var(--g0);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7a99' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;transition:border-color .2s;}
+.filter-select:focus{outline:none;border-color:var(--blue);}
+.filter-active{border-color:var(--blue);background:var(--blue-l);color:var(--blue);font-weight:600;}
+.filter-reset{background:var(--red-l);color:var(--red);border:1.5px solid #f5a0a0;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;align-self:flex-end;}
+.filter-reset:hover{background:var(--red);color:#fff;}
+.filter-badge{display:inline-flex;align-items:center;gap:5px;background:var(--blue-l);color:var(--blue);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;margin-top:2px;}
 
 /* IKM HERO */
 .hero{background:linear-gradient(135deg,var(--blue-d) 0%,var(--blue) 60%,var(--blue-m) 100%);border-radius:var(--cr);color:#fff;padding:22px 20px 18px;margin-bottom:14px;position:relative;overflow:hidden;}
@@ -121,6 +136,13 @@ td{padding:7px 8px;border-bottom:.5px solid var(--g2);color:var(--g9);}
 tr:last-child td{border-bottom:none;}
 .tf td{background:var(--g0);font-weight:700;border-top:1.5px solid var(--g2);}
 
+/* ═══════════════════════════════════
+   TABEL RESPONDEN — NEW
+═══════════════════════════════════ */
+.resp-row{cursor:pointer;transition:background .15s;}
+.resp-row:hover{background:var(--blue-l);}
+.resp-row:active{background:#d6e8fb;}
+
 /* DIST */
 .dist-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
 .dist-lbl{font-size:11px;color:var(--g5);width:52px;flex-shrink:0;}
@@ -147,7 +169,7 @@ tr:last-child td{border-bottom:none;}
 .fab-tip{position:fixed;bottom:34px;right:84px;z-index:100;background:var(--g9);color:#fff;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;font-family:inherit;white-space:nowrap;opacity:0;transform:translateX(6px);transition:all .2s;pointer-events:none;}
 .fab:hover~.fab-tip{opacity:1;transform:translateX(0);}
 
-/* MODAL */
+/* MODAL (form input) */
 .modal-ov{position:fixed;inset:0;z-index:200;background:rgba(10,20,50,.5);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
 .modal-ov.open{opacity:1;pointer-events:all;}
 .modal-sheet{width:100%;max-height:92vh;overflow-y:auto;background:#fff;border-radius:22px 22px 0 0;padding:20px 18px 44px;transform:translateY(40px);transition:transform .3s cubic-bezier(.32,0,.67,0);}
@@ -155,6 +177,31 @@ tr:last-child td{border-bottom:none;}
 .modal-drag{width:40px;height:4px;background:var(--g2);border-radius:2px;margin:0 auto 18px;}
 .modal-title{font-size:17px;font-weight:700;color:var(--g9);margin-bottom:3px;}
 .modal-sub{font-size:12px;color:var(--g5);margin-bottom:20px;}
+
+/* ═══════════════════════════════════
+   DETAIL MODAL — NEW
+═══════════════════════════════════ */
+.detail-ov{position:fixed;inset:0;z-index:300;background:rgba(10,20,50,.55);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+.detail-ov.open{opacity:1;pointer-events:all;}
+.detail-sheet{width:100%;max-height:90vh;overflow-y:auto;background:#fff;border-radius:22px 22px 0 0;padding:20px 18px 44px;transform:translateY(40px);transition:transform .3s cubic-bezier(.32,0,.67,0);}
+.detail-ov.open .detail-sheet{transform:translateY(0);}
+.detail-hdr{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.detail-title{font-size:16px;font-weight:700;flex:1;}
+.detail-close{width:32px;height:32px;border-radius:50%;border:none;background:var(--g1);color:var(--g7);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.detail-unit-badge{display:inline-flex;align-items:center;background:var(--blue-l);color:var(--blue);border-radius:20px;font-size:11px;font-weight:700;padding:4px 12px;margin-bottom:14px;}
+.detail-section{font-size:10px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.detail-item{background:var(--g0);border-radius:8px;padding:9px 11px;}
+.detail-item-lbl{font-size:10px;color:var(--g5);margin-bottom:2px;}
+.detail-item-val{font-size:13px;font-weight:600;color:var(--g9);}
+.detail-unsur-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.detail-unsur-lbl{font-size:11px;color:var(--g7);flex:1;}
+.detail-score-chip{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.sc1{background:#fdf0f0;color:#c93535;}
+.sc2{background:#faeeda;color:#85500b;}
+.sc3{background:var(--green-l);color:var(--green);}
+.sc4{background:var(--teal-l);color:var(--teal);}
+.detail-saran-box{background:var(--blue-l);border-radius:10px;padding:12px;font-size:12px;color:var(--g7);line-height:1.6;font-style:italic;}
 
 /* FORM */
 .field{margin-bottom:15px;}
@@ -215,14 +262,8 @@ tr:last-child td{border-bottom:none;}
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════════════
-  ⚙️  KONFIGURASI — Ganti URL di bawah setelah deploy Apps Script
-     Cara: baca CARA_SETUP.md yang disertakan
-═════════════════════════════════════════════════════════════ -->
 <script>
-// ▼ Paste URL Web App deployment Apps Script di sini ▼
-const API_URL = 'https://script.google.com/macros/s/AKfycbzmCoIKuMZ4EItJasCvZPeEsJyHtPpSh8wC42HMG1CS66iaQX7qaihC2pxeI5huRalp/exec';
-// ▲ Contoh: 'https://script.google.com/macros/s/AKfycb.../exec' ▲
+const API_URL = 'https://script.google.com/macros/s/AKfycbxgKftOF1qC2VkmPSoukGNX8SlxOKQj-P4O7-Gglc-laGofJTP8R06dFMJO4bGrG1Ek/exec';
 </script>
 
 <div class="install-bar" id="installBar">
@@ -233,7 +274,6 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzmCoIKuMZ4EItJasCvZPeE
   </div>
 </div>
 
-<!-- SYNC STATUS BAR -->
 <div class="sync-bar" id="syncBar">
   <span class="sync-dot pulse" id="syncDot"></span>
   <span id="syncMsg">Memuat data dari server…</span>
@@ -249,10 +289,36 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzmCoIKuMZ4EItJasCvZPeE
     <p>RSU Surya Husadha Nusa Dua</p>
   </div>
   <div class="hdr-spacer"></div>
-  <div class="hdr-period" id="period-label">Maret 2026</div>
+  <div class="hdr-period" id="period-label">Semua Periode</div>
 </header>
 
 <main class="main">
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-ttl">
+      <svg viewBox="0 0 24 24"><path d="M3 4a1 1 0 000 2h18a1 1 0 000-2H3zm3 7a1 1 0 000 2h12a1 1 0 000-2H6zm4 7a1 1 0 000 2h4a1 1 0 000-2h-4z"/></svg>
+      Filter Data
+    </div>
+    <div class="filter-row">
+      <div class="filter-group">
+        <div class="filter-lbl">Bulan</div>
+        <select class="filter-select" id="f-bulan" onchange="applyFilter()">
+          <option value="">Semua Bulan</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-lbl">Unit Layanan</div>
+        <select class="filter-select" id="f-unit-filter" onchange="applyFilter()">
+          <option value="">Semua Unit</option>
+        </select>
+      </div>
+      <button class="filter-reset" onclick="resetFilter()" id="reset-btn" style="display:none">✕ Reset</button>
+    </div>
+    <div id="filter-info" style="display:none">
+      <span class="filter-badge" id="filter-badge-text">Filter aktif</span>
+    </div>
+  </div>
 
   <!-- HERO IKM -->
   <div class="hero">
@@ -300,8 +366,8 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzmCoIKuMZ4EItJasCvZPeE
     </div>
     <div class="mc">
       <div class="mc-lbl">Unit Terendah</div>
-      <div class="mc-val" style="font-size:14px;" id="m-low">Rawat Jalan</div>
-      <div class="mc-sub" id="m-low-ikm">IKM 83,33</div>
+      <div class="mc-val" style="font-size:14px;" id="m-low">—</div>
+      <div class="mc-sub" id="m-low-ikm">IKM —</div>
     </div>
   </div>
 
@@ -348,7 +414,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzmCoIKuMZ4EItJasCvZPeE
 
   <!-- PER UNIT BAR -->
   <div class="card">
-    <div class="card-title"><span>IKM per Unit Layanan</span><span class="badge ct-badge b-teal" id="unit-ct">10 unit</span></div>
+    <div class="card-title"><span>IKM per Unit Layanan</span><span class="badge ct-badge b-teal" id="unit-ct">— unit</span></div>
     <div id="bar-unit"></div>
   </div>
 
@@ -366,7 +432,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzmCoIKuMZ4EItJasCvZPeE
 
   <!-- DISTRIBUSI -->
   <div class="card">
-    <div class="card-title"><span>Distribusi Skor Jawaban</span><span class="badge ct-badge b-teal" id="dist-badge">3.384 jawaban</span></div>
+    <div class="card-title"><span>Distribusi Skor Jawaban</span><span class="badge ct-badge b-teal" id="dist-badge">— jawaban</span></div>
     <div id="dist-sec"></div>
   </div>
 
@@ -385,9 +451,27 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzmCoIKuMZ4EItJasCvZPeE
     </div>
   </div>
 
+  <!-- TABEL RESPONDEN (NEW) -->
+  <div class="card">
+    <div class="card-title">
+      <span>Daftar Responden</span>
+      <span class="badge ct-badge b-teal" id="resp-ct">— responden</span>
+    </div>
+    <div style="font-size:11px;color:var(--g5);margin-bottom:10px;">Ketuk baris untuk lihat detail jawaban ↓</div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Waktu</th><th>Unit</th><th class="r">IKM</th><th>Mutu</th></tr></thead>
+        <tbody id="resp-tbody"></tbody>
+      </table>
+    </div>
+    <div id="resp-show-more" style="display:none;text-align:center;margin-top:10px;">
+      <button onclick="showMoreResp()" style="background:var(--blue-l);color:var(--blue);border:none;border-radius:8px;padding:8px 20px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;">Tampilkan lebih banyak</button>
+    </div>
+  </div>
+
   <!-- SARAN -->
   <div class="card">
-    <div class="card-title"><span>Masukan Responden</span><span class="badge ct-badge b-teal" id="saran-ct">119 saran</span></div>
+    <div class="card-title"><span>Masukan Responden</span><span class="badge ct-badge b-teal" id="saran-ct">— saran</span></div>
     <div class="saran-list" id="saran-list"></div>
   </div>
 
@@ -399,7 +483,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzmCoIKuMZ4EItJasCvZPeE
 </button>
 <div class="fab-tip">Tambah Input Survei</div>
 
-<!-- MODAL -->
+<!-- MODAL INPUT SURVEI -->
 <div class="modal-ov" id="modal" onclick="handleOverlayClick(event)">
   <div class="modal-sheet">
     <div class="modal-drag"></div>
@@ -461,6 +545,18 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzmCoIKuMZ4EItJasCvZPeE
         Simpan ke Sheets
       </button>
     </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL (NEW) -->
+<div class="detail-ov" id="detailModal" onclick="handleDetailOverlayClick(event)">
+  <div class="detail-sheet">
+    <div class="modal-drag"></div>
+    <div class="detail-hdr">
+      <div class="detail-title">Detail Responden</div>
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div id="detail-content"></div>
   </div>
 </div>
 
@@ -535,6 +631,11 @@ const SQ_META = [
 
 // ── Live entries dari Google Sheets
 let liveEntries = [];
+// ── Filter state
+let activeFilter = {bulan:'', unit:''};
+// ── Pagination
+let respPage = 1;
+const RESP_PER_PAGE = 20;
 
 // ── Current answers for modal
 const scaleAns = {};
@@ -552,6 +653,107 @@ function mutu(v){
   return             {lbl:'Sangat Baik',cls:'b-teal',  c:'#0f6e56'};
 }
 
+// ── Parse timestamp ke bulan-tahun string "YYYY-MM"
+function getBulanKey(ts){
+  if(!ts) return '';
+  // format: "dd/MM/yyyy HH:mm" or "yyyy-MM-dd HH:mm"
+  let d;
+  if(ts.includes('/')){
+    const parts = ts.split(' ')[0].split('/');
+    // dd/MM/yyyy
+    d = new Date(parts[2], parseInt(parts[1])-1, parts[0]);
+  } else {
+    d = new Date(ts);
+  }
+  if(isNaN(d)) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  return `${y}-${m}`;
+}
+
+function getBulanLabel(key){
+  if(!key) return '';
+  const [y,m] = key.split('-');
+  const names = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  return `${names[parseInt(m)-1]} ${y}`;
+}
+
+// ── Get filtered live entries (SEED data not filtered since no timestamps)
+function getFiltered(){
+  return liveEntries.filter(e=>{
+    const bMatch = !activeFilter.bulan || getBulanKey(e.timestamp) === activeFilter.bulan;
+    const uMatch = !activeFilter.unit  || (e.unit||'') === activeFilter.unit;
+    return bMatch && uMatch;
+  });
+}
+
+// ── Build filter options from live data
+function buildFilterOptions(){
+  const bulanSet = new Set();
+  const unitSet = new Set();
+  liveEntries.forEach(e=>{
+    const bk = getBulanKey(e.timestamp);
+    if(bk) bulanSet.add(bk);
+    if(e.unit) unitSet.add(e.unit);
+  });
+
+  // Bulan dropdown
+  const bSel = document.getElementById('f-bulan');
+  const bCur = bSel.value;
+  bSel.innerHTML = '<option value="">Semua Bulan</option>';
+  [...bulanSet].sort().reverse().forEach(k=>{
+    const opt = document.createElement('option');
+    opt.value = k; opt.textContent = getBulanLabel(k);
+    if(k===bCur) opt.selected=true;
+    bSel.appendChild(opt);
+  });
+
+  // Unit dropdown
+  const uSel = document.getElementById('f-unit-filter');
+  const uCur = uSel.value;
+  uSel.innerHTML = '<option value="">Semua Unit</option>';
+  [...unitSet].sort().forEach(u=>{
+    const opt = document.createElement('option');
+    opt.value = u; opt.textContent = u;
+    if(u===uCur) opt.selected=true;
+    uSel.appendChild(opt);
+  });
+}
+
+function applyFilter(){
+  activeFilter.bulan = document.getElementById('f-bulan').value;
+  activeFilter.unit  = document.getElementById('f-unit-filter').value;
+  respPage = 1;
+
+  const isActive = activeFilter.bulan || activeFilter.unit;
+  document.getElementById('reset-btn').style.display = isActive ? '' : 'none';
+  document.getElementById('filter-info').style.display = isActive ? '' : 'none';
+
+  const parts = [];
+  if(activeFilter.bulan) parts.push(getBulanLabel(activeFilter.bulan));
+  if(activeFilter.unit)  parts.push(activeFilter.unit);
+  document.getElementById('filter-badge-text').textContent = 'Filter: ' + parts.join(' · ');
+
+  // Update period label in header
+  document.getElementById('period-label').textContent = parts.length ? parts.join(' · ') : 'Semua Periode';
+
+  // style selects
+  ['f-bulan','f-unit-filter'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.className = 'filter-select' + (el.value ? ' filter-active' : '');
+  });
+
+  renderAll();
+}
+
+function resetFilter(){
+  activeFilter = {bulan:'', unit:''};
+  document.getElementById('f-bulan').value = '';
+  document.getElementById('f-unit-filter').value = '';
+  respPage = 1;
+  applyFilter();
+}
+
 // ════════════════════════════════════════════════
 // SYNC DARI GOOGLE SHEETS
 // ════════════════════════════════════════════════
@@ -566,35 +768,39 @@ function setSyncStatus(state, msg) {
 
 async function syncFromSheet() {
   if (!API_URL || API_URL === 'PASTE_WEB_APP_URL_HERE') {
-    setSyncStatus('err', '⚠ URL Apps Script belum dikonfigurasi — lihat CARA_SETUP.md');
+    setSyncStatus('err', '⚠ URL Apps Script belum dikonfigurasi');
     return;
   }
   setSyncStatus('syncing', 'Mengambil data dari Google Sheets…');
   try {
-    const res  = await fetch(API_URL + '?action=get', { cache: 'no-store' });
+    const res  = await fetch(API_URL, { cache: 'no-store' });
     const json = await res.json();
     if (!json.ok) throw new Error(json.error || 'Server error');
     liveEntries = json.rows || [];
-    setSyncStatus('ok', `✓ Tersinkron — ${liveEntries.length} responden baru dari Sheets`);
-    render();
-    renderJK();
-    renderUsia();
-    renderSaran();
+    setSyncStatus('ok', `✓ Tersinkron — ${liveEntries.length} responden dari Sheets`);
+    buildFilterOptions();
+    renderAll();
   } catch(err) {
     setSyncStatus('err', '✗ Gagal terhubung ke Sheets — periksa URL & koneksi');
     console.error('Sync error:', err);
   }
 }
 
-// ── Compute with live data from Sheets
+// ── Compute with filter applied (SEED + filtered live)
 function compute(){
-  let tp=SEED.tp, tu=SEED.tu, n=SEED.n;
-  const unsur = SEED.unsur.map(u=>({...u}));
-  const unitMap={};
-  SEED.units.forEach(u=>{ unitMap[u.nama]={...u}; });
-  const dist = {...SEED.dist};
+  const filtered = getFiltered();
+  const onlyLive = activeFilter.bulan || activeFilter.unit;
 
-  liveEntries.forEach(e=>{
+  // If filter active → only show filtered live data (no SEED)
+  let tp = onlyLive ? 0 : SEED.tp;
+  let tu = onlyLive ? 0 : SEED.tu;
+  let n  = onlyLive ? 0 : SEED.n;
+  const unsur = SEED.unsur.map(u=>({...u, p: onlyLive?0:u.p, t: onlyLive?0:u.t}));
+  const unitMap = {};
+  if(!onlyLive) SEED.units.forEach(u=>{ unitMap[u.nama]={...u}; });
+  const dist = onlyLive ? {1:0,2:0,3:0,4:0} : {...SEED.dist};
+
+  filtered.forEach(e=>{
     let ep=0, et=0;
     ['u1','u2','u3','u4','u5','u6','u7','u8','u9'].forEach((k,i)=>{
       const v=parseInt(e[k]);
@@ -613,13 +819,17 @@ function compute(){
   return {tp,tu,n,unsur,units:Object.values(unitMap).sort((a,b)=>b.n-a.n),dist};
 }
 
+function renderAll(){
+  render(); renderJK(); renderUsia(); renderSaran(); renderRespTable();
+}
+
 // ════════════════════════════════════════════════
 // RENDER DASHBOARD
 // ════════════════════════════════════════════════
 function render(){
   const D=compute();
   const I=ikm(D.tp,D.tu);
-  const R=D.tp/D.tu;
+  const R=D.tu>0?D.tp/D.tu:0;
   const M=mutu(I);
   const pct=((I-25)/75*100).toFixed(1);
 
@@ -638,6 +848,9 @@ function render(){
   if(sorted[0]){
     document.getElementById('m-low').textContent=sorted[0].nama.slice(0,14);
     document.getElementById('m-low-ikm').textContent='IKM '+fix2(ikm(sorted[0].p,sorted[0].t));
+  } else {
+    document.getElementById('m-low').textContent='—';
+    document.getElementById('m-low-ikm').textContent='IKM —';
   }
 
   ['r-tp','rc-tp'].forEach(id=>document.getElementById(id).textContent=fid(D.tp));
@@ -662,7 +875,7 @@ function render(){
     utb.innerHTML+=`<tr>
       <td><strong>${u.id}</strong> ${u.nama}</td>
       <td class="r">${fid(u.p)}</td><td class="r">${u.t}</td>
-      <td class="r">${fix3(u.p/u.t)}</td>
+      <td class="r">${u.t>0?fix3(u.p/u.t):'—'}</td>
       <td class="r" style="font-weight:700;color:${m.c}">${fix2(v)}</td>
       <td><span class="badge ${m.cls}">${m.lbl}</span></td>
     </tr>`;
@@ -670,7 +883,7 @@ function render(){
   const mAll=mutu(I);
   document.getElementById('unsur-tf').innerHTML=`<tr class="tf">
     <td>Total</td><td class="r">${fid(D.tp)}</td><td class="r">${fid(D.tu)}</td>
-    <td class="r">${fix3(R)}</td>
+    <td class="r">${D.tu>0?fix3(R):'—'}</td>
     <td class="r" style="color:${mAll.c}">${fix2(I)}</td>
     <td><span class="badge ${mAll.cls}">${mAll.lbl}</span></td>
   </tr>`;
@@ -712,7 +925,7 @@ function render(){
   const dtot=Object.values(D.dist).reduce((a,b)=>a+b,0);
   document.getElementById('dist-badge').textContent=fid(dtot)+' jawaban';
   [1,2,3,4].forEach(k=>{
-    const v=D.dist[k]||0; const p=(v/dtot*100);
+    const v=D.dist[k]||0; const p=(dtot>0?v/dtot*100:0);
     ds.innerHTML+=`<div class="dist-row">
       <div class="dist-lbl">Skor ${k}</div>
       <div class="dist-seg"><div class="dist-s" style="width:${p.toFixed(1)}%;background:${dc[k]};">${v}</div></div>
@@ -722,16 +935,17 @@ function render(){
   ds.innerHTML+=`<div class="leg">${[1,2,3,4].map(k=>`<div class="leg-i"><span class="leg-dot" style="background:${dc[k]};"></span>Skor ${k} — ${dl[k]}</div>`).join('')}</div>`;
 }
 
-// ── Jenis Kelamin (gabungkan seed + live)
+// ── Jenis Kelamin
 function renderJK(){
-  let L=SEED.jk.L, P=SEED.jk.P;
-  liveEntries.forEach(e=>{
+  const onlyLive = activeFilter.bulan || activeFilter.unit;
+  let L = onlyLive ? 0 : SEED.jk.L;
+  let P = onlyLive ? 0 : SEED.jk.P;
+  getFiltered().forEach(e=>{
     if(e.jk==='Laki-laki') L++;
     else if(e.jk==='Perempuan') P++;
   });
-  const mx=Math.max(L,P);
-  const sec=document.getElementById('jk-bars'); sec.innerHTML='';
-  sec.innerHTML=`
+  const mx=Math.max(L,P)||1;
+  document.getElementById('jk-bars').innerHTML=`
     <div class="bar-row"><div class="bar-lbl">Perempuan</div><div class="bar-track"><div class="bar-fill" style="width:${(P/mx*100).toFixed(0)}%;background:var(--blue-m);"></div></div><div class="bar-val">${P}</div></div>
     <div class="bar-row"><div class="bar-lbl">Laki-laki</div><div class="bar-track"><div class="bar-fill" style="width:${(L/mx*100).toFixed(0)}%;background:#7ba7de;"></div></div><div class="bar-val">${L}</div></div>
   `;
@@ -739,9 +953,10 @@ function renderJK(){
 
 // ── Usia
 function renderUsia(){
+  const onlyLive = activeFilter.bulan || activeFilter.unit;
   const groups={'<18':0,'18–30':0,'31–45':0,'46–60':0,'>60':0};
-  SEED.usia.forEach(([l,n])=>{ groups[l]=(groups[l]||0)+n; });
-  liveEntries.forEach(e=>{
+  if(!onlyLive) SEED.usia.forEach(([l,n])=>{ groups[l]=(groups[l]||0)+n; });
+  getFiltered().forEach(e=>{
     const u=parseInt(e.usia);
     if(isNaN(u)) return;
     if(u<18) groups['<18']++;
@@ -751,7 +966,7 @@ function renderUsia(){
     else groups['>60']++;
   });
   const sec=document.getElementById('usia-bars'); sec.innerHTML='';
-  const mx=Math.max(...Object.values(groups));
+  const mx=Math.max(...Object.values(groups))||1;
   Object.entries(groups).forEach(([l,n])=>{
     sec.innerHTML+=`<div class="bar-row">
       <div class="bar-lbl">${l}</div>
@@ -763,13 +978,141 @@ function renderUsia(){
 
 // ── Saran
 function renderSaran(){
+  const onlyLive = activeFilter.bulan || activeFilter.unit;
   const sec=document.getElementById('saran-list'); sec.innerHTML='';
-  const liveS=liveEntries.filter(e=>e.saran&&e.saran.trim()).map(e=>e.saran.trim());
-  const all=[...liveS.reverse(),...SEED.saran]; // live saran muncul duluan
+  const liveS=getFiltered().filter(e=>e.saran&&e.saran.trim()).map(e=>e.saran.trim());
+  const all=[...liveS.reverse(), ...(onlyLive ? [] : SEED.saran)];
   document.getElementById('saran-ct').textContent=all.length+' saran';
   all.forEach(s=>{
     sec.innerHTML+=`<div class="saran-item"><span class="saran-q">"</span><span>${s}</span></div>`;
   });
+}
+
+// ═══════════════════════════════════
+// TABEL RESPONDEN + VIEW DETAIL (NEW)
+// ═══════════════════════════════════
+function fmtTs(ts){
+  if(!ts) return '—';
+  // dd/MM/yyyy HH:mm → more readable
+  if(ts.includes('/')){
+    const [date,time] = ts.split(' ');
+    const [d,m,y] = date.split('/');
+    return `${d}/${m}/${y.slice(-2)} ${time||''}`.trim();
+  }
+  return ts.slice(0,16);
+}
+
+function calcEntryIkm(e){
+  let p=0,t=0;
+  ['u1','u2','u3','u4','u5','u6','u7','u8','u9'].forEach(k=>{
+    const v=parseInt(e[k]);
+    if(v>=1&&v<=4){p+=v;t++;}
+  });
+  return t>0?(p/t)*25:0;
+}
+
+let respShowCount = RESP_PER_PAGE;
+
+function renderRespTable(){
+  const filtered = getFiltered();
+  // Sort newest first
+  const sorted = [...filtered].reverse();
+  const total = sorted.length;
+  respShowCount = Math.min(respPage * RESP_PER_PAGE, total);
+
+  document.getElementById('resp-ct').textContent = total + ' responden';
+  const tbody = document.getElementById('resp-tbody');
+  tbody.innerHTML = '';
+
+  const shown = sorted.slice(0, respShowCount);
+  shown.forEach((e, idx)=>{
+    const v = calcEntryIkm(e);
+    const m = mutu(v);
+    const tr = document.createElement('tr');
+    tr.className = 'resp-row';
+    tr.innerHTML = `
+      <td style="font-size:11px;">${fmtTs(e.timestamp)}</td>
+      <td style="font-size:11px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.unit||'—'}</td>
+      <td class="r" style="font-weight:700;color:${m.c}">${fix2(v)}</td>
+      <td><span class="badge ${m.cls}" style="font-size:9px;">${m.lbl}</span></td>
+    `;
+    tr.onclick = ()=>openDetail(e);
+    tbody.appendChild(tr);
+  });
+
+  if(total===0){
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--g5);padding:20px;">Tidak ada data</td></tr>`;
+  }
+
+  const showMore = document.getElementById('resp-show-more');
+  showMore.style.display = respShowCount < total ? '' : 'none';
+}
+
+function showMoreResp(){
+  respPage++;
+  renderRespTable();
+}
+
+// ── Detail Modal
+function openDetail(e){
+  const v = calcEntryIkm(e);
+  const m = mutu(v);
+  const scoreClass = {1:'sc1',2:'sc2',3:'sc3',4:'sc4'};
+  const unsurNames = ['Persyaratan','Prosedur','Waktu','Biaya/Tarif','Produk','Kompetensi','Perilaku','Sarana','Aduan'];
+
+  let html = `
+    <div class="detail-unit-badge">📍 ${e.unit||'—'}</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div style="font-size:36px;font-weight:700;color:${m.c}">${fix2(v)}</div>
+      <div>
+        <span class="badge ${m.cls}" style="font-size:11px;">${m.lbl}</span>
+        <div style="font-size:10px;color:var(--g5);margin-top:3px;">IKM Responden ini</div>
+      </div>
+    </div>
+
+    <div class="detail-section">Identitas Responden</div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-item-lbl">Waktu</div><div class="detail-item-val" style="font-size:11px;">${e.timestamp||'—'}</div></div>
+      <div class="detail-item"><div class="detail-item-lbl">No. HP</div><div class="detail-item-val" style="font-size:11px;">${e.hp||'—'}</div></div>
+      <div class="detail-item"><div class="detail-item-lbl">Usia</div><div class="detail-item-val">${e.usia||'—'}</div></div>
+      <div class="detail-item"><div class="detail-item-lbl">Jenis Kelamin</div><div class="detail-item-val">${e.jk||'—'}</div></div>
+      <div class="detail-item"><div class="detail-item-lbl">Pendidikan</div><div class="detail-item-val">${e.pendidikan||'—'}</div></div>
+      <div class="detail-item"><div class="detail-item-lbl">Pekerjaan</div><div class="detail-item-val">${e.pekerjaan||'—'}</div></div>
+    </div>
+
+    <div class="detail-section">Jawaban Kepuasan (U1–U9)</div>
+  `;
+
+  ['u1','u2','u3','u4','u5','u6','u7','u8','u9'].forEach((k,i)=>{
+    const v = parseInt(e[k]);
+    const valid = v>=1&&v<=4;
+    const scLabel = valid ? ['','Tidak Baik','Kurang Baik','Baik','Sangat Baik'][v] : '—';
+    html += `<div class="detail-unsur-row">
+      <div class="detail-unsur-lbl"><strong>U${i+1}</strong> ${unsurNames[i]}</div>
+      ${valid
+        ? `<div class="detail-score-chip ${scoreClass[v]}">${v}</div>`
+        : `<div class="detail-score-chip" style="background:var(--g1);color:var(--g5)">—</div>`
+      }
+    </div>`;
+  });
+
+  if(e.saran && e.saran.trim()){
+    html += `<div class="detail-section">Masukan / Saran</div>
+    <div class="detail-saran-box">"${e.saran.trim()}"</div>`;
+  }
+
+  document.getElementById('detail-content').innerHTML = html;
+  document.getElementById('detailModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail(){
+  document.getElementById('detailModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleDetailOverlayClick(e){
+  if(e.target===document.getElementById('detailModal')) closeDetail();
 }
 
 // ── Build scale questions in modal
@@ -826,7 +1169,6 @@ async function submitEntry(){
     toast('⚠ URL Apps Script belum dikonfigurasi');
     return;
   }
-
   const hp=document.getElementById('f-hp').value.trim();
   const usia=document.getElementById('f-usia').value;
   const jk=document.getElementById('f-jk').value;
@@ -853,24 +1195,18 @@ async function submitEntry(){
     saran:document.getElementById('f-saran').value.trim(),
   };
 
-  // UI loading state
   const btn=document.getElementById('submitBtn');
   btn.disabled=true;
   btn.innerHTML=`<span class="spinner"></span> Menyimpan…`;
 
   try {
-    const res = await fetch(API_URL, {
-      method:'POST',
-      body: JSON.stringify(entry),
-    });
+    const res = await fetch(API_URL, { method:'POST', body: JSON.stringify(entry) });
     const json = await res.json();
     if(!json.ok) throw new Error(json.error||'Server error');
-
-    // tambah ke live entries lokal & refresh
     liveEntries.push(entry);
     closeModal();
-    render(); renderJK(); renderUsia();
-    if(entry.saran) renderSaran();
+    buildFilterOptions();
+    renderAll();
     setSyncStatus('ok','✓ Data berhasil disimpan ke Google Sheets');
     toast('✓ Tersimpan ke Google Sheets!');
   } catch(err) {
@@ -903,11 +1239,8 @@ document.getElementById('installX').addEventListener('click',()=>document.getEle
 if('serviceWorker'in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 // ── INIT
-render();
-renderJK();
-renderUsia();
-renderSaran();
-syncFromSheet(); // otomatis sync saat pertama buka
+renderAll();
+syncFromSheet();
 </script>
 </body>
 </html>
