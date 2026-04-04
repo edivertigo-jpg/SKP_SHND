@@ -564,57 +564,26 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxgKftOF1qC2VkmPSoukGNX
 
 <script>
 // ═══════════════════════════════════════════════
-// SEED DATA (Maret 2026 — dari file Excel asli)
+// SEED DATA — dikosongkan, semua data ikut riil dari Google Sheets
 // ═══════════════════════════════════════════════
 const SEED = {
-  tp:12210, tu:3384, n:379,
+  tp:0, tu:0, n:0,
   unsur:[
-    {id:'U1',nama:'Persyaratan', p:1368,t:376},
-    {id:'U2',nama:'Prosedur',    p:1358,t:376},
-    {id:'U3',nama:'Waktu',       p:1354,t:376},
-    {id:'U4',nama:'Biaya/Tarif', p:1321,t:376},
-    {id:'U5',nama:'Produk',      p:1358,t:376},
-    {id:'U6',nama:'Kompetensi',  p:1365,t:376},
-    {id:'U7',nama:'Perilaku',    p:1364,t:376},
-    {id:'U8',nama:'Sarana',      p:1343,t:376},
-    {id:'U9',nama:'Aduan',       p:1379,t:376},
+    {id:'U1',nama:'Persyaratan', p:0,t:0},
+    {id:'U2',nama:'Prosedur',    p:0,t:0},
+    {id:'U3',nama:'Waktu',       p:0,t:0},
+    {id:'U4',nama:'Biaya/Tarif', p:0,t:0},
+    {id:'U5',nama:'Produk',      p:0,t:0},
+    {id:'U6',nama:'Kompetensi',  p:0,t:0},
+    {id:'U7',nama:'Perilaku',    p:0,t:0},
+    {id:'U8',nama:'Sarana',      p:0,t:0},
+    {id:'U9',nama:'Aduan',       p:0,t:0},
   ],
-  units:[
-    {nama:'Laboratorium',        n:271,p:8642, t:2439},
-    {nama:'Pendaftaran',         n:54, p:1868, t:486},
-    {nama:'Rawat Inap Lantai 2', n:17, p:587,  t:153},
-    {nama:'Kasir',               n:9,  p:278,  t:81},
-    {nama:'Rawat Inap Lantai 1', n:8,  p:271,  t:72},
-    {nama:'Rawat Inap Lantai 3', n:8,  p:271,  t:72},
-    {nama:'Radiologi',           n:3,  p:99,   t:27},
-    {nama:'Unit Dialisis',       n:2,  p:63,   t:18},
-    {nama:'Rawat Jalan/Poli',    n:2,  p:60,   t:18},
-    {nama:'IGD',                 n:2,  p:71,   t:18},
-  ],
-  dist:{1:9,2:43,3:1213,4:2119},
-  saran:[
-    'Pengambilan obat tolong dipercepat',
-    'Semoga pelayanannya terus sepenuh hati',
-    'Mohon ditingkatkan lagi pelayanan untuk pasien',
-    'Pelayanannya sangat ramah dan cepat menangani pasien, terima kasih',
-    'Ditingkatkan lagi, terima kasih',
-    'Pertahankan dan terus tingkatkan kualitas pelayanan',
-    'Antrian laboratorium masih cukup lama, mohon diperbaiki',
-    'Ruang tunggu perlu ditambah kursi agar lebih nyaman',
-    'Proses pembayaran di kasir agak lama, mohon dipercepat',
-    'Informasi biaya lebih jelas dan transparan',
-    'Mohon ada fasilitas charging HP di ruang tunggu',
-    'Petugas sangat ramah dan profesional, terima kasih',
-    'Toilet perlu lebih diperhatikan kebersihannya',
-    'Sistem nomor antrian sudah baik, pertahankan',
-    'Papan petunjuk arah perlu diperjelas untuk pasien baru',
-    'Pelayanan IGD sangat cepat dan tanggap',
-    'Hasil lab cepat dan akurat, terima kasih',
-    'Tolong perbanyak kursi roda yang tersedia',
-    'AC di ruang tunggu kadang terlalu dingin',
-  ],
-  jk:{L:186,P:190},
-  usia:[['<18',9],['18–30',82],['31–45',83],['46–60',129],['>60',65]],
+  units:[],
+  dist:{1:0,2:0,3:0,4:0},
+  saran:[],
+  jk:{L:0,P:0},
+  usia:[['<18',0],['18–30',0],['31–45',0],['46–60',0],['>60',0]],
 };
 
 const SQ_META = [
