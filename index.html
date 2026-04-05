@@ -711,19 +711,39 @@ function mutu(v){
 // ── Parse timestamp ke bulan-tahun string "YYYY-MM"
 function getBulanKey(ts){
   if(!ts) return '';
-  // format: "dd/MM/yyyy HH:mm" or "yyyy-MM-dd HH:mm"
-  let d;
-  if(ts.includes('/')){
-    const parts = ts.split(' ')[0].split('/');
-    // dd/MM/yyyy
-    d = new Date(parts[2], parseInt(parts[1])-1, parts[0]);
-  } else {
-    d = new Date(ts);
+  const s = String(ts).trim();
+  let y, m;
+
+  // Format 1: dd/MM/yyyy HH:mm  (dari GS kolom B)
+  const m1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m1){
+    y = parseInt(m1[3]);
+    m = parseInt(m1[2]);
+    if(y >= 2020 && y <= 2099 && m >= 1 && m <= 12)
+      return `${y}-${String(m).padStart(2,'0')}`;
+    return '';
   }
-  if(isNaN(d)) return '';
-  const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,'0');
-  return `${y}-${m}`;
+
+  // Format 2: yyyy-MM-dd  (ISO)
+  const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m2){
+    y = parseInt(m2[1]);
+    m = parseInt(m2[2]);
+    if(y >= 2020 && y <= 2099 && m >= 1 && m <= 12)
+      return `${y}-${String(m).padStart(2,'0')}`;
+    return '';
+  }
+
+  // Format 3: coba new Date() sebagai fallback tapi validasi tahun
+  try {
+    const d = new Date(s);
+    if(isNaN(d)) return '';
+    y = d.getFullYear();
+    m = d.getMonth()+1;
+    if(y >= 2020 && y <= 2099 && m >= 1 && m <= 12)
+      return `${y}-${String(m).padStart(2,'0')}`;
+  } catch(e){}
+  return '';
 }
 
 function getBulanLabel(key){
