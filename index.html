@@ -39,6 +39,7 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--g0);c
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .sync-btn{margin-left:auto;background:transparent;border:1.5px solid currentColor;color:inherit;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;font-family:inherit;cursor:pointer;opacity:.8;}
 .sync-btn:hover{opacity:1;}
+.sync-btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none;}
 
 /* HEADER */
 .hdr{background:linear-gradient(135deg,var(--blue-d) 0%,var(--blue) 55%,var(--blue-m) 100%);color:#fff;padding:14px 18px 12px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;box-shadow:0 3px 16px rgba(15,47,106,.3);}
@@ -297,7 +298,7 @@ tr:last-child td{border-bottom:none;}
 <body>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbxgKftOF1qC2VkmPSoukGNX8SlxOKQj-P4O7-Gglc-laGofJTP8R06dFMJO4bGrG1Ek/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyV3xccxp1xvipJiIcp_Eropcs9231K1XCK4dHLzLQgvviPjFBNSu1MRrSBDQqFy07z/exec';
 </script>
 
 <div class="install-bar" id="installBar">
@@ -820,24 +821,47 @@ function setSyncStatus(state, msg) {
   text.textContent = msg;
 }
 
-// ── Sync dari Google Sheets (tanpa cache, langsung fetch)
+// ── Sync dari Google Sheets — tanpa cache, dengan progress counter
+let _syncInterval = null;
+
 async function syncFromSheet() {
   if (!API_URL || API_URL === 'PASTE_WEB_APP_URL_HERE') {
     setSyncStatus('err', '⚠ URL Apps Script belum dikonfigurasi');
     return;
   }
 
-  setSyncStatus('syncing', 'Mengambil data dari Google Sheets…');
+  // Nonaktifkan tombol selama loading
+  const btn = document.getElementById('syncBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
 
-  // Timeout 20 detik
+  // Progress counter — update tiap detik supaya user tahu masih berjalan
+  let elapsed = 0;
+  clearInterval(_syncInterval);
+  setSyncStatus('syncing', 'Menghubungi server (0 dtk)…');
+  _syncInterval = setInterval(() => {
+    elapsed++;
+    // Fase pesan sesuai perkiraan waktu Apps Script
+    let msg;
+    if      (elapsed < 4)  msg = `Menghubungi Google Apps Script (${elapsed} dtk)…`;
+    else if (elapsed < 8)  msg = `Membuka Google Sheets (${elapsed} dtk)…`;
+    else if (elapsed < 14) msg = `Membaca data responden (${elapsed} dtk)…`;
+    else if (elapsed < 20) msg = `Memproses & mengirim data (${elapsed} dtk)…`;
+    else                   msg = `Masih menunggu respons server (${elapsed} dtk)…`;
+    setSyncStatus('syncing', msg);
+  }, 1000);
+
+  const cleanup = () => {
+    clearInterval(_syncInterval);
+    if (btn) { btn.disabled = false; btn.textContent = '↻ Perbarui'; }
+  };
+
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 20000);
-    const res  = await fetch(API_URL, {
-      cache: 'no-store',
-      signal: controller.signal
-    });
-    clearTimeout(timer);
+    const timeout = setTimeout(() => controller.abort(), 45000);
+    const res = await fetch(API_URL, { cache: 'no-store', signal: controller.signal });
+    clearTimeout(timeout);
+    cleanup();
+
     const json = await res.json();
     if (!json.ok) throw new Error(json.error || 'Server error');
 
@@ -846,10 +870,11 @@ async function syncFromSheet() {
     buildFilterOptions();
     renderAll();
   } catch(err) {
+    cleanup();
     if (err.name === 'AbortError') {
-      setSyncStatus('err', '✗ Timeout — Sheets tidak merespons (>20 detik). Klik ↻ Perbarui untuk coba lagi');
+      setSyncStatus('err', '✗ Timeout (>45 dtk) — Sheets sedang lambat. Klik ↻ Perbarui untuk coba lagi');
     } else {
-      setSyncStatus('err', '✗ Gagal terhubung ke Sheets — periksa koneksi lalu klik ↻ Perbarui');
+      setSyncStatus('err', '✗ Gagal terhubung — periksa koneksi lalu klik ↻ Perbarui');
     }
     console.error('Sync error:', err);
   }
