@@ -889,7 +889,12 @@ function compute(){
 }
 
 function renderAll(){
-  render(); renderJK(); renderUsia(); renderSaran(); renderRespTable(); renderTren();
+  render(); renderJK(); renderUsia(); renderRespTable();
+  // Render berat dijalankan non-blocking setelah UI utama selesai
+  requestAnimationFrame(()=>{
+    renderTren();
+    setTimeout(renderSaran, 0);
+  });
 }
 
 // ════════════════════════════════════════════════
@@ -1304,10 +1309,10 @@ function ekstrakKata(saranList){
       freq[w] = (freq[w]||0) + 1;
     });
   });
-  return Object.entries(freq)
-    .filter(([,n])=>n>=1)
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,40);
+  // Ambil top 40 saja untuk performa
+  const entries = Object.entries(freq).filter(([,n])=>n>=1);
+  entries.sort((a,b)=>b[1]-a[1]);
+  return entries.slice(0,30);
 }
 
 // State tab aktif
@@ -1330,11 +1335,14 @@ function renderSaranList(){
     sec.innerHTML='<div class="sent-empty">Tidak ada masukan untuk kategori ini</div>';
     return;
   }
-  sec.innerHTML = filtered.map(x=>`
+  // Batasi 100 item untuk performa DOM
+  const shown = filtered.slice(0, 100);
+  const more  = filtered.length - shown.length;
+  sec.innerHTML = shown.map(x=>`
     <div class="sent-item">
       <span class="sent-chip ${chipCls[x.s]}">${chipLabel[x.s]}</span>
       <span>${x.teks}</span>
-    </div>`).join('');
+    </div>`).join('') + (more>0 ? `<div class="sent-empty">+${more} masukan lainnya</div>` : '');
 }
 
 // ── Saran (diganti ke analisis sentimen)
@@ -1639,9 +1647,9 @@ if('serviceWorker'in navigator) navigator.serviceWorker.register('sw.js').catch(
 // ── Re-render tren chart on resize
 window.addEventListener('resize', ()=>{ if(typeof renderTren==='function') renderTren(); });
 
-// ── INIT
-renderAll();
-syncFromSheet();
+// ── INIT — render UI kosong dulu, lalu sync data
+renderAll();   // render skeleton dengan data kosong
+syncFromSheet(); // fetch data, lalu renderAll() lagi di dalam
 </script>
 </body>
 </html>
