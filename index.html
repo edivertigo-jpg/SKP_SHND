@@ -1405,12 +1405,24 @@ function renderSaranList(){
   const shown = filtered.slice(0, 100);
   const more  = filtered.length - shown.length;
   sec.innerHTML = shown.map(x=>{
-    const meta = [x.unit, fmtTs(x.timestamp)].filter(Boolean).join(' · ');
-    return `<div class="sent-item">
-      <span class="sent-chip ${chipCls[x.s]}">${chipLabel[x.s]}</span>
-      <div style="display:flex;flex-direction:column;gap:2px;flex:1;">
-        <span>${x.teks}</span>
-        ${meta ? `<span style="font-size:10px;color:var(--g5);">${meta}</span>` : ''}
+    // Format tanggal dari kolom B: dd/MM/yyyy HH:mm atau dd/MM/yyyy HH:mm:ss
+    let tglLabel = '';
+    if(x.timestamp){
+      const ts = String(x.timestamp).trim();
+      // Ambil bagian tanggal saja dd/MM/yyyy
+      const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if(m) tglLabel = m[1]+'/'+m[2]+'/'+m[3];
+      else tglLabel = ts.slice(0,10);
+    }
+    const unitLabel = x.unit ? x.unit : '';
+    return `<div class="sent-item" style="align-items:flex-start;padding:8px 0;">
+      <span class="sent-chip ${chipCls[x.s]}" style="margin-top:2px;">${chipLabel[x.s]}</span>
+      <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;">
+        <span style="line-height:1.5;">${x.teks}</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${unitLabel ? `<span style="font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-l);padding:1px 7px;border-radius:10px;">📍 ${unitLabel}</span>` : ''}
+          ${tglLabel ? `<span style="font-size:10px;color:var(--g5);">🗓 ${tglLabel}</span>` : ''}
+        </div>
       </div>
     </div>`;
   }).join('') + (more>0 ? `<div class="sent-empty">+${more} masukan lainnya</div>` : '');
