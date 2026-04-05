@@ -820,22 +820,37 @@ function setSyncStatus(state, msg) {
   text.textContent = msg;
 }
 
+// ── Sync dari Google Sheets (tanpa cache, langsung fetch)
 async function syncFromSheet() {
   if (!API_URL || API_URL === 'PASTE_WEB_APP_URL_HERE') {
     setSyncStatus('err', '⚠ URL Apps Script belum dikonfigurasi');
     return;
   }
+
   setSyncStatus('syncing', 'Mengambil data dari Google Sheets…');
+
+  // Timeout 20 detik
   try {
-    const res  = await fetch(API_URL, { cache: 'no-store' });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    const res  = await fetch(API_URL, {
+      cache: 'no-store',
+      signal: controller.signal
+    });
+    clearTimeout(timer);
     const json = await res.json();
     if (!json.ok) throw new Error(json.error || 'Server error');
+
     liveEntries = json.rows || [];
     setSyncStatus('ok', `✓ Tersinkron — ${liveEntries.length} responden dari Sheets`);
     buildFilterOptions();
     renderAll();
   } catch(err) {
-    setSyncStatus('err', '✗ Gagal terhubung ke Sheets — periksa URL & koneksi');
+    if (err.name === 'AbortError') {
+      setSyncStatus('err', '✗ Timeout — Sheets tidak merespons (>20 detik). Klik ↻ Perbarui untuk coba lagi');
+    } else {
+      setSyncStatus('err', '✗ Gagal terhubung ke Sheets — periksa koneksi lalu klik ↻ Perbarui');
+    }
     console.error('Sync error:', err);
   }
 }
