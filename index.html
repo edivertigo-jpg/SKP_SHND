@@ -298,7 +298,7 @@ tr:last-child td{border-bottom:none;}
 <body>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbyV3xccxp1xvipJiIcp_Eropcs9231K1XCK4dHLzLQgvviPjFBNSu1MRrSBDQqFy07z/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwlCCUIoJg_OEmlCzTG4psYR8DGcreT0ri0TR9HfwMw4hhjXXnMUnO3y-sp_aDS7uNj/exec';
 </script>
 
 <div class="install-bar" id="installBar">
@@ -858,11 +858,19 @@ async function syncFromSheet() {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 45000);
-    const res = await fetch(API_URL, { cache: 'no-store', signal: controller.signal });
+    const res = await fetch(API_URL, {
+      cache: 'no-store',
+      redirect: 'follow',
+      signal: controller.signal
+    });
     clearTimeout(timeout);
     cleanup();
 
-    const json = await res.json();
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    let json;
+    try { json = JSON.parse(text); }
+    catch(e) { throw new Error('Respons bukan JSON — pastikan GS sudah di-deploy ulang sebagai New Deployment'); }
     if (!json.ok) throw new Error(json.error || 'Server error');
 
     liveEntries = json.rows || [];
@@ -874,7 +882,7 @@ async function syncFromSheet() {
     if (err.name === 'AbortError') {
       setSyncStatus('err', '✗ Timeout (>45 dtk) — Sheets sedang lambat. Klik ↻ Perbarui untuk coba lagi');
     } else {
-      setSyncStatus('err', '✗ Gagal terhubung — periksa koneksi lalu klik ↻ Perbarui');
+      setSyncStatus('err', err.message.includes('JSON') ? '✗ GS belum di-deploy ulang — buka Apps Script → Deploy → New Deployment, salin URL baru ke HTML' : '✗ Gagal terhubung — periksa koneksi lalu klik ↻ Perbarui');
     }
     console.error('Sync error:', err);
   }
