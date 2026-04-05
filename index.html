@@ -267,7 +267,8 @@ tr:last-child td{border-bottom:none;}
 .sent-neg{background:#fdf0f0;color:#c93535;}
 .sent-neu{background:#e8f0fb;color:#1a4fa0;}
 .sent-items{max-height:260px;overflow-y:auto;margin-bottom:4px;}
-.sent-item{font-size:11px;padding:5px 0;border-bottom:.5px solid var(--g2);display:flex;gap:6px;align-items:flex-start;line-height:1.5;}
+.sent-item{font-size:11px;padding:5px 0;border-bottom:.5px solid var(--g2);display:flex;gap:6px;align-items:flex-start;line-height:1.5;transition:background .15s;border-radius:6px;padding-left:4px;padding-right:4px;margin:0 -4px;}
+.sent-item:hover{background:var(--blue-l);}
 .sent-item:last-child{border-bottom:none;}
 .sent-chip{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;flex-shrink:0;margin-top:1px;}
 .chip-pos{background:#e6f7ee;color:#1a8a4a;}
@@ -1404,7 +1405,8 @@ function renderSaranList(){
   // Batasi 100 item untuk performa DOM
   const shown = filtered.slice(0, 100);
   const more  = filtered.length - shown.length;
-  sec.innerHTML = shown.map(x=>{
+  window._shownSaran = shown;  // simpan untuk akses onclick
+  sec.innerHTML = shown.map((x, idx)=>{
     // Format tanggal dari kolom B: dd/MM/yyyy HH:mm atau dd/MM/yyyy HH:mm:ss
     let tglLabel = '';
     if(x.timestamp){
@@ -1415,13 +1417,14 @@ function renderSaranList(){
       else tglLabel = ts.slice(0,10);
     }
     const unitLabel = x.unit ? x.unit : '';
-    return `<div class="sent-item" style="align-items:flex-start;padding:8px 0;">
+    return `<div class="sent-item" style="align-items:flex-start;padding:8px 0;cursor:pointer;" onclick="openDetailFromSaran(${idx})" title="Klik untuk lihat detail responden">
       <span class="sent-chip ${chipCls[x.s]}" style="margin-top:2px;">${chipLabel[x.s]}</span>
       <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;">
         <span style="line-height:1.5;">${x.teks}</span>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
           ${unitLabel ? `<span style="font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-l);padding:1px 7px;border-radius:10px;">📍 ${unitLabel}</span>` : ''}
           ${tglLabel ? `<span style="font-size:10px;color:var(--g5);">🗓 ${tglLabel}</span>` : ''}
+          <span style="font-size:9px;color:var(--g3);margin-left:auto;">Tap untuk detail →</span>
         </div>
       </div>
     </div>`;
@@ -1439,6 +1442,7 @@ function renderSaran(){
     s: klasifikasiSentimen(e.saran.trim()),
     timestamp: e.timestamp || '',
     unit: e.unit || '',
+    _entry: e,  // simpan full entry untuk openDetail
   }));
   const pos = _allSaran.filter(x=>x.s==='pos').length;
   const neg = _allSaran.filter(x=>x.s==='neg').length;
@@ -1597,6 +1601,12 @@ function openDetail(e){
   document.getElementById('detail-content').innerHTML = html;
   document.getElementById('detailModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function openDetailFromSaran(idx){
+  const item = window._shownSaran && window._shownSaran[idx];
+  if(!item || !item._entry) { toast('Data detail tidak tersedia'); return; }
+  openDetail(item._entry);
 }
 
 function closeDetail(){
