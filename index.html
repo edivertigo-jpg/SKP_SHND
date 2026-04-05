@@ -1334,7 +1334,7 @@ function klasifikasiSentimen(teks){
 function ekstrakKata(saranList){
   const freq = {};
   saranList.forEach(s=>{
-    const words = s.toLowerCase().split(/[\s,.\-!?;"'()/\]+/);
+    const words = s.toLowerCase().split(/[\s,.\/\-!?;"'()]+/);
     words.forEach(w=>{
       if(w.length < 3) return;
       if(STOP.has(w)) return;
