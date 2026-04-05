@@ -294,6 +294,7 @@ tr:last-child td{border-bottom:none;}
 
 @media(min-width:480px){.m4{grid-template-columns:repeat(4,1fr);}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -313,6 +314,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzs3GMOQu44zWgLilCaqECf
   <span class="sync-dot pulse" id="syncDot"></span>
   <span id="syncMsg">Memuat data dari server…</span>
   <button class="sync-btn" onclick="syncFromSheet()" id="syncBtn">↻ Perbarui</button>
+  <button class="sync-btn" onclick="exportToExcel()" id="exportBtn" style="background:transparent;border:1.5px solid currentColor;color:inherit;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;font-family:inherit;cursor:pointer;opacity:.8;" title="Export data ke Excel">⬇ Export Excel</button>
 </div>
 
 <header class="hdr">
@@ -1696,6 +1698,114 @@ document.getElementById('installBtn').addEventListener('click',async()=>{
 });
 document.getElementById('installX').addEventListener('click',()=>document.getElementById('installBar').classList.remove('show'));
 if('serviceWorker'in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+
+// ════════════════════════════════════════════════
+// EXPORT TO EXCEL
+// ════════════════════════════════════════════════
+function exportToExcel(){
+  if(!liveEntries || liveEntries.length === 0){
+    toast('Belum ada data untuk diekspor');
+    return;
+  }
+
+  const Q = [
+    '1. Bagaimana pendapat Bapak/ Ibu tentang kesesuaian persyaratan pelayanan yang diinformasikan dengan  jenis pelayanan yang didapatkan di RS\nPilihan jawaban :\n1. Tidak sesuai\n2. Kurang sesuai\n3. Sesuai\n4. Sangat sesuai',
+    '2. Bagaimana  pemahaman Bapak/ Ibu tentang kemudahan prosedur pelayanan yang didapatkan di unit ini*\nPilihan jawaban :\n1. Tidak mudah\n2. Kurang mudah\n3. Mudah\n4. Sangat Mudah',
+    '3. Bagaimana pendapat Bapak/ Ibu tentang kecepatan waktu dalam memberikan pelayanan di unit ini*\nPilihan jawaban :\n1. Tidak cepat\n2. Kurang cepat\n3. Cepat\n4. Sangat cepat',
+    '4. Bagaimana pendapat Bapak/ Ibu tentang kewajaran biaya/tarif dalam pelayanan di RS*\nPilihan jawaban : \n1. Sangat mahal\n2. Cukup mahal\n3. Murah\n4. Gratis',
+    '5. Bagaimana pendapat Bapak/ Ibu tentang kesesuaian produk pelayanan  di unit ini antara yang tercantum dalam standar pelayanan dengan hasil yang diberikan.\nPilihan jawaban :\n1. Tidak sesuai\n2. Kurang sesuai\n3. Sesuai\n4. Sangat sesuai',
+    '6. Bagaimana   pendapat   Bapak/ Ibu  tentang  kompetensi/ kemampuan petugas di unit ini dalam memberikan pelayanan*\nPilihan jawaban :\n1. Tidak kompeten\n2. kurang kompeten\n3. Kompeten\n4. Sangat kompeten',
+    '7. Bagamana pendapat Bapak/ Ibu perilaku petugas di unit ini dalam pelayanan terkait kesopanan dan keramahan*\nPilihan jawaban : \n1. Tidak sopan dan ramah\n2. Kurang sopan dan ramah\n3. Sopan dan ramah\n4. Sangat sopan dan ramah',
+    '8. Bagaimana pendapat Bapak/ibu tentang kualitas sarana dan prasarana di RS*\nPilihan jawaban :\n1. Buruk\n2. Cukup\n3. Baik\n4. Sangat Baik',
+    '9. Bagaimana pendapat Bapak/ Ibu tentang  penanganan pengaduan pengguna layanan di RS*\nPilihan jawaban : \n1. Tidak ada\n2. Ada tetapi tidak berfungsi\n3. Berfungsi kurang maksimal\n4. Dikelola dengan baik',
+    '10. Jika Bapak/Ibu ingin menyampaikan masukkan/saran untuk lebih meningkatkan kualitas layanan di RS kami, silakan tuliskan pada bagian yang disediakan berikut ini.',
+  ];
+
+  // Header row — persis seperti Sheet1 Excel asli
+  const header = [
+    'No',
+    'Tanggal dan waktu pengisian 2',
+    'Nomor HP/Whatsapp',
+    'Usia',
+    'Jenis Kelamin',
+    'Pendidikan',
+    'Pekerjaan',
+    'Jenis Layanan Yang diterima',
+    ...Q,
+    'TOTAL',
+  ];
+
+  const rows = [header];
+
+  // Apply current filter
+  const filtered = getFiltered();
+
+  filtered.forEach((e, idx) => {
+    const u = [
+      parseInt(e.u1)||'', parseInt(e.u2)||'', parseInt(e.u3)||'',
+      parseInt(e.u4)||'', parseInt(e.u5)||'', parseInt(e.u6)||'',
+      parseInt(e.u7)||'', parseInt(e.u8)||'', parseInt(e.u9)||''
+    ];
+    const total = u.reduce((s,v)=> s + (typeof v==='number'?v:0), 0);
+    const saran = e.saran || '';
+
+    rows.push([
+      idx + 1,
+      e.timestamp || '',
+      e.hp || '',
+      e.usia || '',
+      e.jk || '',
+      e.pendidikan || '',
+      e.pekerjaan || '',
+      e.unit || '',
+      ...u,
+      saran,
+      total,
+    ]);
+  });
+
+  // Build worksheet
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+
+  // Column widths
+  ws['!cols'] = [
+    {wch:5},   // No
+    {wch:20},  // Tanggal
+    {wch:18},  // HP
+    {wch:6},   // Usia
+    {wch:12},  // JK
+    {wch:14},  // Pendidikan
+    {wch:14},  // Pekerjaan
+    {wch:22},  // Unit
+    {wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8}, // U1-U9
+    {wch:40},  // Saran
+    {wch:7},   // Total
+  ];
+
+  // Freeze header row
+  ws['!freeze'] = {xSplit:0, ySplit:1};
+
+  const wb = XLSX.utils.book_new();
+
+  // Sheet name pakai filter aktif atau default
+  let sheetName = 'Data Responden';
+  if(activeFilter.bulan) sheetName = getBulanLabel(activeFilter.bulan);
+  if(activeFilter.unit)  sheetName += (activeFilter.bulan?' - ':'')+activeFilter.unit.slice(0,15);
+  sheetName = sheetName.slice(0,31); // max 31 char
+
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+  // Filename
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2,'0');
+  const mm = String(now.getMonth()+1).padStart(2,'0');
+  const yyyy = now.getFullYear();
+  const fname = `SKM_SuryaHusadha_${yyyy}${mm}${dd}.xlsx`;
+
+  XLSX.writeFile(wb, fname);
+  toast(`✓ Berhasil export ${filtered.length} responden ke ${fname}`);
+}
 
 // ── Re-render tren chart on resize
 window.addEventListener('resize', ()=>{ if(typeof renderTren==='function') renderTren(); });
