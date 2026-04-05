@@ -258,13 +258,15 @@ tr:last-child td{border-bottom:none;}
 .sent-bar-wrap{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:10px 0 6px;}
 .sent-seg{height:100%;transition:width .5s;}
 .sent-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.sent-stat{transition:transform .15s,box-shadow .15s;}
+.sent-stat:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12);}
 .sent-stat{border-radius:8px;padding:8px 10px;text-align:center;}
 .sent-stat-n{font-size:18px;font-weight:700;margin-bottom:1px;}
 .sent-stat-lbl{font-size:10px;font-weight:600;opacity:.75;}
 .sent-pos{background:#e6f7ee;color:#1a8a4a;}
 .sent-neg{background:#fdf0f0;color:#c93535;}
 .sent-neu{background:#e8f0fb;color:#1a4fa0;}
-.sent-items{max-height:130px;overflow-y:auto;margin-bottom:4px;}
+.sent-items{max-height:260px;overflow-y:auto;margin-bottom:4px;}
 .sent-item{font-size:11px;padding:5px 0;border-bottom:.5px solid var(--g2);display:flex;gap:6px;align-items:flex-start;line-height:1.5;}
 .sent-item:last-child{border-bottom:none;}
 .sent-chip{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;flex-shrink:0;margin-top:1px;}
@@ -529,15 +531,15 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzs3GMOQu44zWgLilCaqECf
 
     <!-- Sentimen overview bar -->
     <div class="sent-stats">
-      <div class="sent-stat sent-pos">
+      <div class="sent-stat sent-pos" onclick="setSentTab('pos', null)" style="cursor:pointer;" title="Klik untuk filter Positif">
         <div class="sent-stat-n" id="sent-pos-n">0</div>
         <div class="sent-stat-lbl">Positif</div>
       </div>
-      <div class="sent-stat sent-neg">
+      <div class="sent-stat sent-neg" onclick="setSentTab('neg', null)" style="cursor:pointer;" title="Klik untuk filter Negatif">
         <div class="sent-stat-n" id="sent-neg-n">0</div>
         <div class="sent-stat-lbl">Negatif</div>
       </div>
-      <div class="sent-stat sent-neu">
+      <div class="sent-stat sent-neu" onclick="setSentTab('neu', null)" style="cursor:pointer;" title="Klik untuk filter Netral/Saran">
         <div class="sent-stat-n" id="sent-neu-n">0</div>
         <div class="sent-stat-lbl">Netral/Saran</div>
       </div>
@@ -1378,7 +1380,16 @@ function setSentTab(tab, btn){
   _sentTab = tab;
   document.querySelectorAll('.sent-tab').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
+  else {
+    // Aktifkan tab button sesuai tab
+    const tabMap = {pos:1, neg:2, neu:3, semua:0};
+    const tabBtns = document.querySelectorAll('.sent-tab');
+    if(tabBtns[tabMap[tab]]) tabBtns[tabMap[tab]].classList.add('active');
+  }
   renderSaranList();
+  // Scroll ke daftar masukan
+  const el = document.getElementById('saran-list');
+  if(el) setTimeout(()=>el.scrollIntoView({behavior:'smooth', block:'nearest'}), 100);
 }
 
 function renderSaranList(){
@@ -1393,22 +1404,30 @@ function renderSaranList(){
   // Batasi 100 item untuk performa DOM
   const shown = filtered.slice(0, 100);
   const more  = filtered.length - shown.length;
-  sec.innerHTML = shown.map(x=>`
-    <div class="sent-item">
+  sec.innerHTML = shown.map(x=>{
+    const meta = [x.unit, fmtTs(x.timestamp)].filter(Boolean).join(' · ');
+    return `<div class="sent-item">
       <span class="sent-chip ${chipCls[x.s]}">${chipLabel[x.s]}</span>
-      <span>${x.teks}</span>
-    </div>`).join('') + (more>0 ? `<div class="sent-empty">+${more} masukan lainnya</div>` : '');
+      <div style="display:flex;flex-direction:column;gap:2px;flex:1;">
+        <span>${x.teks}</span>
+        ${meta ? `<span style="font-size:10px;color:var(--g5);">${meta}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('') + (more>0 ? `<div class="sent-empty">+${more} masukan lainnya</div>` : '');
 }
 
 // ── Saran (diganti ke analisis sentimen)
 function renderSaran(){
   const onlyLive = activeFilter.bulan || activeFilter.unit;
-  const liveS = getFiltered().filter(e=>e.saran&&e.saran.trim()).map(e=>e.saran.trim());
-  const seedS = onlyLive ? [] : (SEED.saran||[]);
-  const rawAll = [...liveS, ...seedS].filter(Boolean);
 
   // Klasifikasi
-  _allSaran = rawAll.map(teks=>({teks, s: klasifikasiSentimen(teks)}));
+  const liveEntFilt = getFiltered().filter(e=>e.saran&&e.saran.trim());
+  _allSaran = liveEntFilt.map(e=>({
+    teks: e.saran.trim(),
+    s: klasifikasiSentimen(e.saran.trim()),
+    timestamp: e.timestamp || '',
+    unit: e.unit || '',
+  }));
   const pos = _allSaran.filter(x=>x.s==='pos').length;
   const neg = _allSaran.filter(x=>x.s==='neg').length;
   const neu = _allSaran.filter(x=>x.s==='neu').length;
@@ -1426,6 +1445,7 @@ function renderSaran(){
   document.getElementById('sent-bar-neu').style.width = pct(neu);
 
   // Word cloud
+  const rawAll = _allSaran.map(x=>x.teks);
   const kata = ekstrakKata(rawAll);
   const wcWrap = document.getElementById('wc-wrap');
   if(!kata.length){
