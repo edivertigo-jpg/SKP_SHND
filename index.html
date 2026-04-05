@@ -253,6 +253,40 @@ tr:last-child td{border-bottom:none;}
 /* SECTION DIVIDER */
 .sec-div{font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 10px;padding-left:2px;}
 
+/* ANALISIS SENTIMEN */
+.sent-bar-wrap{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:10px 0 6px;}
+.sent-seg{height:100%;transition:width .5s;}
+.sent-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.sent-stat{border-radius:8px;padding:8px 10px;text-align:center;}
+.sent-stat-n{font-size:18px;font-weight:700;margin-bottom:1px;}
+.sent-stat-lbl{font-size:10px;font-weight:600;opacity:.75;}
+.sent-pos{background:#e6f7ee;color:#1a8a4a;}
+.sent-neg{background:#fdf0f0;color:#c93535;}
+.sent-neu{background:#e8f0fb;color:#1a4fa0;}
+.sent-items{max-height:130px;overflow-y:auto;margin-bottom:4px;}
+.sent-item{font-size:11px;padding:5px 0;border-bottom:.5px solid var(--g2);display:flex;gap:6px;align-items:flex-start;line-height:1.5;}
+.sent-item:last-child{border-bottom:none;}
+.sent-chip{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;flex-shrink:0;margin-top:1px;}
+.chip-pos{background:#e6f7ee;color:#1a8a4a;}
+.chip-neg{background:#fdf0f0;color:#c93535;}
+.chip-neu{background:#e8f0fb;color:#1a4fa0;}
+.sent-tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.sent-tab{font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;border:1.5px solid var(--g2);background:#fff;color:var(--g5);cursor:pointer;transition:all .15s;}
+.sent-tab.active{border-color:var(--blue);background:var(--blue-l);color:var(--blue);}
+.wc-wrap{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0 4px;min-height:60px;}
+.wc-word{border-radius:20px;font-weight:600;cursor:default;transition:opacity .2s;padding:3px 10px;}
+.wc-word:hover{opacity:.75;}
+.sent-empty{text-align:center;font-size:12px;color:var(--g3);padding:20px 0;}
+
+/* TREN CHART */
+.tren-wrap{position:relative;width:100%;height:180px;margin-top:6px;}
+.tren-canvas{display:block;width:100%;height:100%;}
+.tren-empty{display:flex;align-items:center;justify-content:center;height:120px;font-size:12px;color:var(--g3);}
+.tren-tooltip{position:absolute;background:var(--g9);color:#fff;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;pointer-events:none;white-space:nowrap;transform:translate(-50%,-110%);transition:opacity .15s;opacity:0;z-index:10;}
+.tren-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;}
+.tren-leg-i{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--g5);}
+.tren-leg-line{width:14px;height:3px;border-radius:2px;flex-shrink:0;}
+
 /* SPINNER */
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -388,6 +422,23 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxgKftOF1qC2VkmPSoukGNX
     </div>
   </div>
 
+  <!-- TREN IKP PER BULAN -->
+  <div class="card" id="tren-card">
+    <div class="card-title">
+      <span>Tren IKP per Bulan</span>
+      <span class="badge ct-badge b-teal" id="tren-badge">— bulan</span>
+    </div>
+    <div class="tren-wrap">
+      <canvas class="tren-canvas" id="tren-canvas"></canvas>
+      <div class="tren-tooltip" id="tren-tooltip"></div>
+      <div class="tren-empty" id="tren-empty" style="display:none;">Belum cukup data untuk menampilkan tren</div>
+    </div>
+    <div class="tren-legend">
+      <div class="tren-leg-i"><span class="tren-leg-line" style="background:var(--blue);"></span>IKP Bulanan</div>
+      <div class="tren-leg-i"><span class="tren-leg-line" style="background:var(--g3);border-top:2px dashed var(--g3);background:none;height:0;border-radius:0;"></span>Target 88,31</div>
+    </div>
+  </div>
+
   <!-- PER UNSUR BAR -->
   <div class="card">
     <div class="card-title"><span>Skor per Unsur Pelayanan</span><span class="badge ct-badge b-teal">9 Unsur</span></div>
@@ -469,10 +520,44 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxgKftOF1qC2VkmPSoukGNX
     </div>
   </div>
 
-  <!-- SARAN -->
+  <!-- ANALISIS SENTIMEN & SARAN -->
   <div class="card">
-    <div class="card-title"><span>Masukan Responden</span><span class="badge ct-badge b-teal" id="saran-ct">— saran</span></div>
-    <div class="saran-list" id="saran-list"></div>
+    <div class="card-title"><span>Analisis Masukan Responden</span><span class="badge ct-badge b-teal" id="saran-ct">— saran</span></div>
+
+    <!-- Sentimen overview bar -->
+    <div class="sent-stats">
+      <div class="sent-stat sent-pos">
+        <div class="sent-stat-n" id="sent-pos-n">0</div>
+        <div class="sent-stat-lbl">Positif</div>
+      </div>
+      <div class="sent-stat sent-neg">
+        <div class="sent-stat-n" id="sent-neg-n">0</div>
+        <div class="sent-stat-lbl">Negatif</div>
+      </div>
+      <div class="sent-stat sent-neu">
+        <div class="sent-stat-n" id="sent-neu-n">0</div>
+        <div class="sent-stat-lbl">Netral/Saran</div>
+      </div>
+    </div>
+    <div class="sent-bar-wrap">
+      <div class="sent-seg" id="sent-bar-pos" style="background:#1a8a4a;width:0%"></div>
+      <div class="sent-seg" id="sent-bar-neg" style="background:#c93535;width:0%"></div>
+      <div class="sent-seg" id="sent-bar-neu" style="background:#4a82d0;width:0%"></div>
+    </div>
+
+    <!-- Word cloud -->
+    <div style="font-size:10px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 4px;">Kata yang Sering Muncul</div>
+    <div class="wc-wrap" id="wc-wrap"></div>
+
+    <!-- Tab filter -->
+    <div style="font-size:10px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px;">Daftar Masukan</div>
+    <div class="sent-tabs">
+      <button class="sent-tab active" onclick="setSentTab('semua',this)">Semua</button>
+      <button class="sent-tab" onclick="setSentTab('pos',this)">Positif</button>
+      <button class="sent-tab" onclick="setSentTab('neg',this)">Negatif</button>
+      <button class="sent-tab" onclick="setSentTab('neu',this)">Netral/Saran</button>
+    </div>
+    <div class="sent-items" id="saran-list"></div>
   </div>
 
 </main>
@@ -789,8 +874,195 @@ function compute(){
 }
 
 function renderAll(){
-  render(); renderJK(); renderUsia(); renderSaran(); renderRespTable();
+  render(); renderJK(); renderUsia(); renderSaran(); renderRespTable(); renderTren();
 }
+
+// ════════════════════════════════════════════════
+// TREN IKP PER BULAN
+// ════════════════════════════════════════════════
+function computeTren(){
+  // Kumpulkan semua entries, group per bulan dari liveEntries saja
+  const bulanMap = {};
+  liveEntries.forEach(e=>{
+    const bk = getBulanKey(e.timestamp);
+    if(!bk) return;
+    if(!bulanMap[bk]) bulanMap[bk] = {tp:0, tu:0, n:0};
+    ['u1','u2','u3','u4','u5','u6','u7','u8','u9'].forEach(k=>{
+      const v = parseInt(e[k]);
+      if(v>=1&&v<=4){ bulanMap[bk].tp+=v; bulanMap[bk].tu++; }
+    });
+    bulanMap[bk].n++;
+  });
+  // Sort kronologis
+  return Object.entries(bulanMap)
+    .sort(([a],[b])=>a.localeCompare(b))
+    .map(([key,d])=>({
+      key,
+      label: getBulanLabel(key),
+      ikp: d.tu>0 ? (d.tp/d.tu)*25 : 0,
+      n: d.n
+    }));
+}
+
+function renderTren(){
+  const data = computeTren();
+  const badge = document.getElementById('tren-badge');
+  const canvas = document.getElementById('tren-canvas');
+  const empty  = document.getElementById('tren-empty');
+  const tooltip = document.getElementById('tren-tooltip');
+
+  badge.textContent = data.length + ' bulan';
+
+  if(data.length < 2){
+    canvas.style.display = 'none';
+    empty.style.display = 'flex';
+    return;
+  }
+  canvas.style.display = 'block';
+  empty.style.display = 'none';
+
+  // Setup canvas resolution
+  const wrap = canvas.parentElement;
+  const W = wrap.clientWidth || 340;
+  const H = 180;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const PAD = {top:16, right:16, bottom:36, left:40};
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top  - PAD.bottom;
+
+  // Y range: min/max IKP dengan sedikit padding
+  const vals = data.map(d=>d.ikp);
+  const minV = Math.max(0,  Math.min(...vals) - 5);
+  const maxV = Math.min(100, Math.max(...vals) + 5);
+  const yScale = v => PAD.top + cH - ((v - minV) / (maxV - minV)) * cH;
+  const xScale = i => PAD.left + (i / (data.length-1)) * cW;
+
+  // Clear
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines Y (4 lines)
+  ctx.strokeStyle = '#dde1ec';
+  ctx.lineWidth = 0.5;
+  for(let i=0;i<=3;i++){
+    const v = minV + (maxV-minV)*i/3;
+    const y = yScale(v);
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(W-PAD.right, y); ctx.stroke();
+    ctx.fillStyle = '#6b7a99';
+    ctx.font = '9px Plus Jakarta Sans, system-ui, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(v.toFixed(0), PAD.left-4, y+3);
+  }
+
+  // Target line 88.31 (Sangat Baik threshold)
+  const TARGET = 88.31;
+  if(TARGET >= minV && TARGET <= maxV){
+    const yT = yScale(TARGET);
+    ctx.save();
+    ctx.strokeStyle = '#bec5d8';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(PAD.left, yT); ctx.lineTo(W-PAD.right, yT); ctx.stroke();
+    ctx.restore();
+  }
+
+  // Area fill under line
+  const grad = ctx.createLinearGradient(0, PAD.top, 0, H-PAD.bottom);
+  grad.addColorStop(0, 'rgba(26,79,160,0.18)');
+  grad.addColorStop(1, 'rgba(26,79,160,0)');
+  ctx.beginPath();
+  ctx.moveTo(xScale(0), yScale(vals[0]));
+  data.forEach((d,i)=>{ if(i>0) ctx.lineTo(xScale(i), yScale(d.ikp)); });
+  ctx.lineTo(xScale(data.length-1), H-PAD.bottom);
+  ctx.lineTo(xScale(0), H-PAD.bottom);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = '#1a4fa0';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  data.forEach((d,i)=>{
+    if(i===0) ctx.moveTo(xScale(i), yScale(d.ikp));
+    else       ctx.lineTo(xScale(i), yScale(d.ikp));
+  });
+  ctx.stroke();
+
+  // Dots + labels X
+  data.forEach((d,i)=>{
+    const x = xScale(i), y = yScale(d.ikp);
+    const m = mutu(d.ikp);
+    // dot
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI*2);
+    ctx.fillStyle = m.c;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // X label (bulan)
+    ctx.fillStyle = '#6b7a99';
+    ctx.font = '9px Plus Jakarta Sans, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(d.label, x, H-PAD.bottom+13);
+    // IKP label above dot
+    ctx.fillStyle = '#374162';
+    ctx.font = '8px Plus Jakarta Sans, system-ui, sans-serif';
+    ctx.fillText(d.ikp.toFixed(1).replace('.',','), x, y-8);
+  });
+
+  // Tooltip on hover
+  canvas._trenData = data;
+  canvas._trenScaleX = xScale;
+  canvas._trenScaleY = yScale;
+  canvas._trenW = W;
+  canvas._trenPAD = PAD;
+  canvas._trenCW = cW;
+}
+
+// Tooltip interaction untuk tren chart
+(function(){
+  document.addEventListener('mousemove', function(e){
+    const canvas = document.getElementById('tren-canvas');
+    if(!canvas || !canvas._trenData) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const data = canvas._trenData;
+    const xScale = canvas._trenScaleX;
+    const PAD = canvas._trenPAD;
+    const tip = document.getElementById('tren-tooltip');
+
+    // Find nearest point
+    let closest = -1, minDist = 30;
+    data.forEach((d,i)=>{
+      const dist = Math.abs(mx - xScale(i));
+      if(dist < minDist){ minDist=dist; closest=i; }
+    });
+
+    if(closest>=0){
+      const d = data[closest];
+      tip.textContent = d.label + ': ' + d.ikp.toFixed(2).replace('.',',') + '  (' + d.n + ' resp)';
+      tip.style.left = xScale(closest) + 'px';
+      tip.style.top  = canvas._trenScaleY(d.ikp) + 'px';
+      tip.style.opacity = '1';
+    } else {
+      tip.style.opacity = '0';
+    }
+  });
+  document.addEventListener('mouseleave', function(){
+    const tip = document.getElementById('tren-tooltip');
+    if(tip) tip.style.opacity = '0';
+  });
+})();
 
 // ════════════════════════════════════════════════
 // RENDER DASHBOARD
@@ -945,16 +1217,158 @@ function renderUsia(){
   });
 }
 
-// ── Saran
+// ════════════════════════════════════════════════
+// ANALISIS SENTIMEN + WORD CLOUD
+// ════════════════════════════════════════════════
+
+// Kamus kata positif bahasa Indonesia + umum
+const KATA_POS = new Set([
+  'bagus','baik','ramah','sopan','cepat','tepat','memuaskan','puas','nyaman','bersih',
+  'profesional','sigap','tanggap','helpful','baik','best','good','great','excellent',
+  'luar biasa','mantap','keren','sempurna','sangat baik','terbaik','top','oke',
+  'pertahankan','tingkatkan','bangga','senang','sukses','lancar','mudah','jelas',
+  'informatif','helpful','responsif','efisien','terima kasih','terimakasih','thanks',
+  'memuaskan','berkualitas','friendly','pelayanan baik','pelayanan bagus','helpful',
+  'membantu','cekatan','terampil','berpengalaman','teliti','sabar','peduli',
+]);
+
+// Kamus kata negatif
+const KATA_NEG = new Set([
+  'lama','lambat','mahal','kotor','buruk','kurang','tidak','jelek','kecewa',
+  'mengecewakan','parah','gagal','susah','bingung','antri','antrian','tunggu',
+  'tunggu lama','parkir','susah parkir','panas','bising','berantakan','ribet',
+  'rumit','keluhan','komplain','masalah','kendala','error','salah','belum','kurang',
+  'kurang baik','perlu diperbaiki','harus','mohon','tolong','minta','ditingkatkan',
+  'diperbaiki','bermasalah','protes','kritik','memprihatinkan','mengecewakan',
+]);
+
+// Stop words yang diabaikan di word cloud
+const STOP = new Set([
+  'yang','dan','di','ke','dari','untuk','dengan','ini','itu','ada','tidak',
+  'sudah','bisa','akan','juga','lebih','agar','kami','anda','saya','kita',
+  'nya','adalah','atau','pada','oleh','dalam','jika','karena','tapi','namun',
+  'ya','yg','dg','dr','utk','dgn','blm','sdh','biar','supaya','aja','saja',
+  'bang','pak','bu','mas','mbak','kak','good','the','and','for','very','is',
+  '-','_','.',',','!','?','"',"'",'rs','rsu','surya','husadha','nusa','dua',
+  'pelayanan','layanan','rumah','sakit','semua','masih','perlu','bapak','ibu',
+  'mohon','tolong','harap','setiap','selalu','terus',
+]);
+
+// Klasifikasi sentimen satu kalimat
+function klasifikasiSentimen(teks){
+  const lower = teks.toLowerCase();
+  const words = lower.split(/\s+/);
+  let pos=0, neg=0;
+  words.forEach(w=>{
+    const clean = w.replace(/[^a-z]/g,'');
+    if(KATA_POS.has(clean)||KATA_POS.has(w)) pos++;
+    if(KATA_NEG.has(clean)||KATA_NEG.has(w)) neg++;
+  });
+  // Deteksi pola kalimat saran ("mohon","tolong","agar","supaya","lebih")
+  const polaSaran = /mohon|tolong|agar|supaya|ditingkatkan|diperbaiki|semoga|harap|minta|perlu/i.test(lower);
+  if(polaSaran && neg===0) return 'neu';  // saran murni
+  if(pos > neg) return 'pos';
+  if(neg > pos) return 'neg';
+  if(pos===0 && neg===0){
+    // Positif default jika ada keyword apresiasi
+    if(/bagus|baik|ramah|memuaskan|pertahankan|lanjutkan|good|thanks|terimakasih/i.test(lower)) return 'pos';
+    return 'neu';
+  }
+  return 'neu';
+}
+
+// Ekstrak kata penting untuk word cloud
+function ekstrakKata(saranList){
+  const freq = {};
+  saranList.forEach(s=>{
+    const words = s.toLowerCase().split(/[\s,.\-!?;"'()/\]+/);
+    words.forEach(w=>{
+      if(w.length < 3) return;
+      if(STOP.has(w)) return;
+      if(/^\d+$/.test(w)) return;
+      freq[w] = (freq[w]||0) + 1;
+    });
+  });
+  return Object.entries(freq)
+    .filter(([,n])=>n>=1)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,40);
+}
+
+// State tab aktif
+let _sentTab = 'semua';
+let _allSaran = [];
+
+function setSentTab(tab, btn){
+  _sentTab = tab;
+  document.querySelectorAll('.sent-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderSaranList();
+}
+
+function renderSaranList(){
+  const sec = document.getElementById('saran-list');
+  const chipLabel = {pos:'Positif', neg:'Negatif', neu:'Netral'};
+  const chipCls   = {pos:'chip-pos', neg:'chip-neg', neu:'chip-neu'};
+  const filtered = _sentTab==='semua' ? _allSaran : _allSaran.filter(x=>x.s===_sentTab);
+  if(!filtered.length){
+    sec.innerHTML='<div class="sent-empty">Tidak ada masukan untuk kategori ini</div>';
+    return;
+  }
+  sec.innerHTML = filtered.map(x=>`
+    <div class="sent-item">
+      <span class="sent-chip ${chipCls[x.s]}">${chipLabel[x.s]}</span>
+      <span>${x.teks}</span>
+    </div>`).join('');
+}
+
+// ── Saran (diganti ke analisis sentimen)
 function renderSaran(){
   const onlyLive = activeFilter.bulan || activeFilter.unit;
-  const sec=document.getElementById('saran-list'); sec.innerHTML='';
-  const liveS=getFiltered().filter(e=>e.saran&&e.saran.trim()).map(e=>e.saran.trim());
-  const all=[...liveS.reverse(), ...(onlyLive ? [] : SEED.saran)];
-  document.getElementById('saran-ct').textContent=all.length+' saran';
-  all.forEach(s=>{
-    sec.innerHTML+=`<div class="saran-item"><span class="saran-q">"</span><span>${s}</span></div>`;
-  });
+  const liveS = getFiltered().filter(e=>e.saran&&e.saran.trim()).map(e=>e.saran.trim());
+  const seedS = onlyLive ? [] : (SEED.saran||[]);
+  const rawAll = [...liveS, ...seedS].filter(Boolean);
+
+  // Klasifikasi
+  _allSaran = rawAll.map(teks=>({teks, s: klasifikasiSentimen(teks)}));
+  const pos = _allSaran.filter(x=>x.s==='pos').length;
+  const neg = _allSaran.filter(x=>x.s==='neg').length;
+  const neu = _allSaran.filter(x=>x.s==='neu').length;
+  const total = _allSaran.length;
+
+  document.getElementById('saran-ct').textContent = total + ' saran';
+  document.getElementById('sent-pos-n').textContent = pos;
+  document.getElementById('sent-neg-n').textContent = neg;
+  document.getElementById('sent-neu-n').textContent = neu;
+
+  // Bar
+  const pct = v => total ? (v/total*100).toFixed(1)+'%' : '0%';
+  document.getElementById('sent-bar-pos').style.width = pct(pos);
+  document.getElementById('sent-bar-neg').style.width = pct(neg);
+  document.getElementById('sent-bar-neu').style.width = pct(neu);
+
+  // Word cloud
+  const kata = ekstrakKata(rawAll);
+  const wcWrap = document.getElementById('wc-wrap');
+  if(!kata.length){
+    wcWrap.innerHTML = '<div class="sent-empty">Belum ada data masukan</div>';
+  } else {
+    const maxFreq = kata[0][1];
+    // Warna berdasarkan sentimen mayoritas kata
+    const colors = [
+      {bg:'#e6f7ee',c:'#1a8a4a'},{bg:'#e8f0fb',c:'#1a4fa0'},
+      {bg:'#faeeda',c:'#85500b'},{bg:'#e1f5ee',c:'#0f6e56'},
+      {bg:'#fdf0f0',c:'#c93535'},{bg:'#eef0f6',c:'#374162'},
+    ];
+    wcWrap.innerHTML = kata.map(([w,n],i)=>{
+      const size = 10 + Math.round((n/maxFreq)*12);
+      const cl = colors[i % colors.length];
+      return `<span class="wc-word" style="font-size:${size}px;background:${cl.bg};color:${cl.c};" title="${n}x">${w}</span>`;
+    }).join('');
+  }
+
+  // Render list
+  renderSaranList();
 }
 
 // ═══════════════════════════════════
@@ -1206,6 +1620,9 @@ document.getElementById('installBtn').addEventListener('click',async()=>{
 });
 document.getElementById('installX').addEventListener('click',()=>document.getElementById('installBar').classList.remove('show'));
 if('serviceWorker'in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// ── Re-render tren chart on resize
+window.addEventListener('resize', ()=>{ if(typeof renderTren==='function') renderTren(); });
 
 // ── INIT
 renderAll();
