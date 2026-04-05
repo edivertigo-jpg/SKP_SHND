@@ -882,7 +882,7 @@ async function syncFromSheet() {
     if (err.name === 'AbortError') {
       setSyncStatus('err', '✗ Timeout (>45 dtk) — Sheets sedang lambat. Klik ↻ Perbarui untuk coba lagi');
     } else {
-      setSyncStatus('err', err.message.includes('JSON') ? '✗ GS belum di-deploy ulang — buka Apps Script → Deploy → New Deployment, salin URL baru ke HTML' : '✗ Gagal terhubung — periksa koneksi lalu klik ↻ Perbarui');
+      setSyncStatus('err', '✗ Gagal terhubung — periksa koneksi lalu klik Perbarui');
     }
     console.error('Sync error:', err);
   }
