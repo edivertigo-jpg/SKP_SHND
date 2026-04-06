@@ -1429,9 +1429,8 @@ function renderSaranList(){
       </div>
     </div>`;
   }).join('') + (more>0 ? `<div class="sent-empty">+${more} masukan lainnya</div>` : '');
-  // Event delegation - lebih reliable di mobile
-  sec.addEventListener('click', _saranClickHandler, {once:true, passive:false});
-  sec.addEventListener('touchend', _saranClickHandler, {once:true, passive:false});
+  // Event delegation - pakai click saja, touchend menyebabkan trigger saat scroll
+  sec.addEventListener('click', _saranClickHandler, {once:true});
 }
 
 // ── Saran (diganti ke analisis sentimen)
@@ -1614,10 +1613,7 @@ function _saranClickHandler(e){
   if(isNaN(idx)) return;
   // Re-attach listener
   const sec = document.getElementById('saran-list');
-  if(sec){
-    sec.addEventListener('click', _saranClickHandler, {once:true, passive:false});
-    sec.addEventListener('touchend', _saranClickHandler, {once:true, passive:false});
-  }
+  if(sec) sec.addEventListener('click', _saranClickHandler, {once:true});
   openDetailFromSaran(idx);
 }
 
