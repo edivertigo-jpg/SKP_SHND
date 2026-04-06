@@ -267,7 +267,7 @@ tr:last-child td{border-bottom:none;}
 .sent-neg{background:#fdf0f0;color:#c93535;}
 .sent-neu{background:#e8f0fb;color:#1a4fa0;}
 .sent-items{max-height:260px;overflow-y:auto;margin-bottom:4px;}
-.sent-item{font-size:11px;padding:5px 0;border-bottom:.5px solid var(--g2);display:flex;gap:6px;align-items:flex-start;line-height:1.5;transition:background .15s;border-radius:6px;padding-left:4px;padding-right:4px;margin:0 -4px;}
+.sent-item{font-size:11px;padding:5px 0;border-bottom:.5px solid var(--g2);display:flex;gap:6px;align-items:flex-start;line-height:1.5;transition:background .15s;border-radius:6px;padding-left:4px;padding-right:4px;margin:0 -4px;touch-action:manipulation;-webkit-tap-highlight-color:rgba(26,79,160,.15);}
 .sent-item:hover{background:var(--blue-l);}
 .sent-item:last-child{border-bottom:none;}
 .sent-chip{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;flex-shrink:0;margin-top:1px;}
@@ -1417,7 +1417,7 @@ function renderSaranList(){
       else tglLabel = ts.slice(0,10);
     }
     const unitLabel = x.unit ? x.unit : '';
-    return `<div class="sent-item" style="align-items:flex-start;padding:8px 4px;cursor:pointer;" onclick="openDetailFromSaran(${idx})" title="Klik untuk lihat detail responden">
+    return `<div class="sent-item" style="align-items:flex-start;padding:8px 4px;cursor:pointer;" data-idx="${idx}">
       <span class="sent-chip ${chipCls[x.s]}" style="margin-top:2px;flex-shrink:0;">${chipLabel[x.s]}</span>
       <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;">
         <span style="line-height:1.5;word-break:break-word;">${x.teks}</span>
@@ -1429,6 +1429,9 @@ function renderSaranList(){
       </div>
     </div>`;
   }).join('') + (more>0 ? `<div class="sent-empty">+${more} masukan lainnya</div>` : '');
+  // Event delegation - lebih reliable di mobile
+  sec.addEventListener('click', _saranClickHandler, {once:true, passive:false});
+  sec.addEventListener('touchend', _saranClickHandler, {once:true, passive:false});
 }
 
 // ── Saran (diganti ke analisis sentimen)
@@ -1601,6 +1604,21 @@ function openDetail(e){
   document.getElementById('detail-content').innerHTML = html;
   document.getElementById('detailModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function _saranClickHandler(e){
+  e.stopPropagation();
+  const item = e.target.closest('[data-idx]');
+  if(!item) return;
+  const idx = parseInt(item.getAttribute('data-idx'));
+  if(isNaN(idx)) return;
+  // Re-attach listener
+  const sec = document.getElementById('saran-list');
+  if(sec){
+    sec.addEventListener('click', _saranClickHandler, {once:true, passive:false});
+    sec.addEventListener('touchend', _saranClickHandler, {once:true, passive:false});
+  }
+  openDetailFromSaran(idx);
 }
 
 function openDetailFromSaran(idx){
