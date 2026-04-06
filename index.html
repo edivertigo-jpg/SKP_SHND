@@ -1417,15 +1417,15 @@ function renderSaranList(){
       else tglLabel = ts.slice(0,10);
     }
     const unitLabel = x.unit ? x.unit : '';
-    return `<div class="sent-item" style="align-items:flex-start;padding:8px 0;cursor:pointer;" onclick="openDetailFromSaran(${idx})" title="Klik untuk lihat detail responden">
-      <span class="sent-chip ${chipCls[x.s]}" style="margin-top:2px;">${chipLabel[x.s]}</span>
-      <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;">
-        <span style="line-height:1.5;">${x.teks}</span>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          ${unitLabel ? `<span style="font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-l);padding:1px 7px;border-radius:10px;">📍 ${unitLabel}</span>` : ''}
-          ${tglLabel ? `<span style="font-size:10px;color:var(--g5);">🗓 ${tglLabel}</span>` : ''}
-          <span style="font-size:9px;color:var(--g3);margin-left:auto;">Tap untuk detail →</span>
+    return `<div class="sent-item" style="align-items:flex-start;padding:8px 4px;cursor:pointer;" onclick="openDetailFromSaran(${idx})" title="Klik untuk lihat detail responden">
+      <span class="sent-chip ${chipCls[x.s]}" style="margin-top:2px;flex-shrink:0;">${chipLabel[x.s]}</span>
+      <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;">
+        <span style="line-height:1.5;word-break:break-word;">${x.teks}</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+          ${unitLabel ? `<span style="font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-l);padding:2px 8px;border-radius:10px;flex-shrink:0;">📍 ${unitLabel}</span>` : ''}
+          ${tglLabel ? `<span style="font-size:10px;color:var(--g5);flex-shrink:0;">🗓 ${tglLabel}</span>` : ''}
         </div>
+        <span style="font-size:10px;color:var(--blue);font-weight:600;">Tap untuk detail →</span>
       </div>
     </div>`;
   }).join('') + (more>0 ? `<div class="sent-empty">+${more} masukan lainnya</div>` : '');
