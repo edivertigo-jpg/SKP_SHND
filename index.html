@@ -1803,8 +1803,10 @@ function exportToExcel(){
       parseInt(e.u4)||'', parseInt(e.u5)||'', parseInt(e.u6)||'',
       parseInt(e.u7)||'', parseInt(e.u8)||'', parseInt(e.u9)||''
     ];
-    const total = u.reduce((s,v)=> s + (typeof v==='number'?v:0), 0);
     const saran = e.saran || '';
+    const excelRow = idx + 2; // +1 header, +1 karena 1-indexed
+    // Rumus SUM kolom I s/d Q (U1-U9) persis seperti Excel asli
+    const totalFormula = `=SUM(I${excelRow}:Q${excelRow})`;
 
     rows.push([
       idx + 1,
@@ -1817,7 +1819,7 @@ function exportToExcel(){
       e.unit || '',
       ...u,
       saran,
-      total,
+      { f: totalFormula },  // rumus Excel, bukan nilai statis
     ]);
   });
 
