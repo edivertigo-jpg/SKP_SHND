@@ -1821,8 +1821,65 @@ function exportToExcel(){
     ]);
   });
 
+  // ── Baris summary di bawah data (persis seperti Sheet1 Excel asli)
+  const dataRowCount = filtered.length; // jumlah baris data (tanpa header)
+  const lastDataRow  = dataRowCount + 1; // +1 karena header di row 1
+  const totalCol     = 'T';             // kolom T = kolom TOTAL (index 19, ke-20)
+
+  // Hitung total nilai persepsi U1-U9 dari data yang difilter
+  let totalPersepsi = 0;
+  filtered.forEach(e => {
+    ['u1','u2','u3','u4','u5','u6','u7','u8','u9'].forEach(k => {
+      const v = parseInt(e[k]);
+      if(v >= 1 && v <= 4) totalPersepsi += v;
+    });
+  });
+  const totalTerisi = dataRowCount * 9;
+  const ikpAkhir    = totalTerisi > 0 ? (totalPersepsi / totalTerisi * 25) : 0;
+
+  // Row summary 1: Total nilai persepsi
+  const summaryRow1 = new Array(20).fill('');
+  summaryRow1[0]  = 'Total nilai persepsi seluruh responden';
+  summaryRow1[19] = totalPersepsi;
+  rows.push(summaryRow1);
+
+  // Row summary 2: Total unsur terisi
+  const summaryRow2 = new Array(20).fill('');
+  summaryRow2[0]  = 'Total unsur yang terisi dari seluruh responden (jumlah sampel X 9)';
+  summaryRow2[19] = totalTerisi;
+  summaryRow2[20-1+1] = `input manual sesuai sampel`; // kolom U (catatan)
+  rows.push(summaryRow2);
+
+  // Row summary 3: Rumus IKP
+  const summaryRow3 = new Array(20).fill('');
+  summaryRow3[19] = ikpAkhir;
+  rows.push(summaryRow3);
+
   // Build worksheet
   const ws = XLSX.utils.aoa_to_sheet(rows);
+
+  // Style baris summary (styling via cell references setelah sheet dibuat)
+  const s1Row = lastDataRow + 2; // 1-indexed, +1 header +1 = row index di sheet
+  const s2Row = lastDataRow + 3;
+  const s3Row = lastDataRow + 4;
+
+  // Warna kuning untuk sel label summary (kolom A)
+  ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T'].forEach(col => {
+    [`${col}${s1Row}`, `${col}${s2Row}`].forEach(ref => {
+      if(!ws[ref]) ws[ref] = {t:'z', v:''};
+      ws[ref].s = { fill:{ fgColor:{rgb:'FFFF00'} }, font:{ bold: false } };
+    });
+  });
+
+  // Warna cyan untuk sel nilai T (total persepsi & terisi)
+  [`T${s1Row}`, `T${s2Row}`].forEach(ref => {
+    if(ws[ref]) ws[ref].s = { fill:{ fgColor:{rgb:'00B0F0'} }, font:{ bold:true, color:{rgb:'FFFFFF'} } };
+  });
+
+  // Warna merah untuk sel IKP akhir
+  if(ws[`T${s3Row}`]) {
+    ws[`T${s3Row}`].s = { fill:{ fgColor:{rgb:'FF0000'} }, font:{ bold:true, color:{rgb:'FFFFFF'}, sz:14 } };
+  }
 
   // Column widths
   ws['!cols'] = [
