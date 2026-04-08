@@ -297,6 +297,39 @@ tr:last-child td{border-bottom:none;}
 
 @media(min-width:480px){.m4{grid-template-columns:repeat(4,1fr);}}
 
+/* ── MOBILE FIXES ── */
+@media(max-width:600px){
+  /* IKP Comparison - pastikan teks tidak terpotong */
+  .ikp-cmp{gap:4px;}
+  .ikp-cmp-val{font-size:18px;}
+  .ikp-delta{font-size:11px;padding:3px 7px;}
+
+  /* Heatmap - paksa scroll horizontal */
+  .heatmap-wrap{display:block;overflow-x:scroll;-webkit-overflow-scrolling:touch;max-width:100%;}
+  .heatmap-table{min-width:480px;font-size:9px;}
+  .hm-cell{width:30px;height:24px;font-size:9px;}
+
+  /* Radar - pastikan container tidak overflow */
+  .radar-wrap{width:100%;overflow:hidden;}
+  .radar-canvas{width:100% !important;max-width:100% !important;}
+
+  /* Target sampel - label tidak terpotong */
+  .target-lbl{width:80px;font-size:10px;}
+  .target-val{font-size:10px;width:44px;}
+
+  /* Topik chip - wrap dengan benar */
+  .topik-grid{gap:5px;}
+  .topik-chip{font-size:10px;padding:4px 10px;}
+
+  /* Saran filter row */
+  .saran-filter-row{flex-direction:column;gap:6px;}
+  .saran-unit-sel{width:100%;}
+
+  /* Sentimen stats */
+  .sent-stats{gap:6px;}
+  .sent-stat-n{font-size:16px;}
+}
+
 /* IKP COMPARISON */
 .ikp-cmp{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:12px;}
 .ikp-cmp-box{background:var(--g0);border-radius:10px;padding:10px 12px;text-align:center;}
@@ -324,8 +357,8 @@ tr:last-child td{border-bottom:none;}
 .ts-lbl{font-size:10px;font-weight:600;opacity:.75;}
 
 /* HEATMAP */
-.heatmap-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-.heatmap-table{border-collapse:separate;border-spacing:3px;font-size:10px;white-space:nowrap;}
+.heatmap-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;-webkit-overflow-scrolling:touch;}
+.heatmap-table{border-collapse:separate;border-spacing:3px;font-size:10px;white-space:nowrap;min-width:500px;}
 .heatmap-table th{font-size:9px;color:var(--g5);font-weight:600;padding:3px 4px;text-align:center;letter-spacing:.03em;}
 .heatmap-table td.hm-unit{font-size:10px;color:var(--g7);font-weight:600;padding:3px 6px 3px 0;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;text-align:left;}
 .hm-cell{width:36px;height:28px;border-radius:5px;text-align:center;vertical-align:middle;font-size:10px;font-weight:700;cursor:default;transition:transform .1s;}
@@ -337,7 +370,7 @@ tr:last-child td{border-bottom:none;}
 
 /* RADAR */
 .radar-wrap{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;}
-.radar-canvas{display:block;max-width:320px;width:100%;}
+.radar-canvas{display:block;max-width:320px;width:100%;height:auto;}
 .radar-unit-sel{width:100%;padding:7px 28px 7px 10px;border:1.5px solid var(--g2);border-radius:8px;font-size:12px;font-family:inherit;color:var(--g9);background:var(--g0);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7a99' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;margin-bottom:12px;}
 
 /* TOPIK SARAN */
@@ -394,6 +427,14 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzs3GMOQu44zWgLilCaqECf
       Filter Data
     </div>
     <div class="filter-row">
+      <div class="filter-group">
+        <div class="filter-lbl">Periode</div>
+        <select class="filter-select" id="f-semester" onchange="applyFilter()">
+          <option value="">Semua</option>
+          <option value="S1">Semester 1 (Jan–Jun)</option>
+          <option value="S2">Semester 2 (Jul–Des)</option>
+        </select>
+      </div>
       <div class="filter-group">
         <div class="filter-lbl">Bulan</div>
         <select class="filter-select" id="f-bulan" onchange="applyFilter()">
@@ -829,23 +870,25 @@ const SQ_META = [
 // TARGET SAMPEL PER UNIT (dari Excel Krejcie-Morgan)
 // Mapping: nama di Excel → nama unit di data survei
 // ═══════════════════════════════════════════════
+// targetS = target 6 bulan/semester (kolom D, dibulatkan)
+// targetB = target per bulan (kolom E)
 const TARGET_SAMPEL = [
-  {unit:'Farmasi Ranap + rajal', target:64, aliases:['Farmasi Rawat Inap','Farmasi Rawat Jalan','Farmasi Ranap','Farmasi Rajal']},
-  {unit:'FO',                    target:64, aliases:['Pendaftaran','FO','Front Office']},
-  {unit:'Gizi',                  target:54, aliases:['Gizi']},
-  {unit:'HD',                    target:58, aliases:['Unit Dialisis','HD','Hemodialisa']},
-  {unit:'IGD',                   target:62, aliases:['IGD']},
-  {unit:'Intensive',             target:10, aliases:['ICU/HCU','Intensive','ICU','HCU']},
-  {unit:'Kasir',                 target:64, aliases:['Kasir']},
-  {unit:'Lab',                   target:62, aliases:['Laboratorium','Lab']},
-  {unit:'LT1',                   target:52, aliases:['Rawat Inap Lantai 1','LT1']},
-  {unit:'LT2',                   target:34, aliases:['Rawat Inap Lantai 2','LT2']},
-  {unit:'LT3',                   target:27, aliases:['Rawat Inap Lantai 3','LT3']},
-  {unit:'OK',                    target:15, aliases:['Kamar Operasi','OK','Kamar OK']},
-  {unit:'Poliklinik',            target:64, aliases:['Rawat Jalan/Poliklinik','Poliklinik']},
-  {unit:'R Bayi',                target:38, aliases:['Ruang Bayi','R Bayi','Ruang Bersalin']},
-  {unit:'Ronsen',                target:59, aliases:['Radiologi','Ronsen','Rontgen']},
-  {unit:'VK',                    target:48, aliases:['Ruang Bersalin','VK','Kamar Bersalin']},
+  {unit:'Farmasi Ranap + rajal', targetS:381, targetB:64, aliases:['Farmasi Rawat Inap','Farmasi Rawat Jalan','Farmasi Ranap','Farmasi Rajal']},
+  {unit:'FO',                    targetS:382, targetB:64, aliases:['Pendaftaran','FO','Front Office']},
+  {unit:'Gizi',                  targetS:325, targetB:54, aliases:['Gizi']},
+  {unit:'HD',                    targetS:345, targetB:58, aliases:['Unit Dialisis','HD','Hemodialisa']},
+  {unit:'IGD',                   targetS:371, targetB:62, aliases:['IGD']},
+  {unit:'Intensive',             targetS:57,  targetB:10, aliases:['ICU/HCU','Intensive','ICU','HCU']},
+  {unit:'Kasir',                 targetS:382, targetB:64, aliases:['Kasir']},
+  {unit:'Lab',                   targetS:369, targetB:62, aliases:['Laboratorium','Lab']},
+  {unit:'LT1',                   targetS:313, targetB:52, aliases:['Rawat Inap Lantai 1','LT1']},
+  {unit:'LT2',                   targetS:202, targetB:34, aliases:['Rawat Inap Lantai 2','LT2']},
+  {unit:'LT3',                   targetS:163, targetB:27, aliases:['Rawat Inap Lantai 3','LT3']},
+  {unit:'OK',                    targetS:89,  targetB:15, aliases:['Kamar Operasi','OK','Kamar OK']},
+  {unit:'Poliklinik',            targetS:381, targetB:64, aliases:['Rawat Jalan/Poliklinik','Poliklinik']},
+  {unit:'R Bayi',                targetS:225, targetB:38, aliases:['Ruang Bayi','R Bayi','Ruang Bersalin']},
+  {unit:'Ronsen',                targetS:352, targetB:59, aliases:['Radiologi','Ronsen','Rontgen']},
+  {unit:'VK',                    targetS:285, targetB:48, aliases:['Ruang Bersalin','VK','Kamar Bersalin']},
 ];
 
 function matchTarget(unitName){
@@ -860,7 +903,7 @@ function matchTarget(unitName){
 // ── Live entries dari Google Sheets
 let liveEntries = [];
 // ── Filter state
-let activeFilter = {bulan:'', unit:''};
+let activeFilter = {bulan:'', unit:'', semester:''};
 // ── Pagination
 let respPage = 1;
 const RESP_PER_PAGE = 20;
@@ -926,30 +969,48 @@ function getBulanLabel(key){
   return `${names[parseInt(m)-1]} ${y}`;
 }
 
+// Semester dari bulan key "YYYY-MM": S1=Jan-Jun, S2=Jul-Des
+function getSemesterOfKey(key){
+  if(!key) return '';
+  const m = parseInt(key.split('-')[1]);
+  return m<=6 ? 'S1' : 'S2';
+}
+
+// Label semester
+function getSemesterLabel(s, year){
+  const names = {S1:'Semester 1 (Jan–Jun)', S2:'Semester 2 (Jul–Des)'};
+  return year ? names[s]+' '+year : (names[s]||s);
+}
+
 // ── Get filtered live entries (SEED data not filtered since no timestamps)
 function getFiltered(){
   return liveEntries.filter(e=>{
-    const bMatch = !activeFilter.bulan || getBulanKey(e.timestamp) === activeFilter.bulan;
-    const uMatch = !activeFilter.unit  || (e.unit||'') === activeFilter.unit;
-    return bMatch && uMatch;
+    const bk = getBulanKey(e.timestamp);
+    const bMatch = !activeFilter.bulan    || bk === activeFilter.bulan;
+    const sMatch = !activeFilter.semester || getSemesterOfKey(bk) === activeFilter.semester;
+    const uMatch = !activeFilter.unit     || (e.unit||'') === activeFilter.unit;
+    return bMatch && sMatch && uMatch;
   });
 }
 
 // ── Build filter options from live data
 function buildFilterOptions(){
   const bulanSet = new Set();
-  const unitSet = new Set();
+  const unitSet  = new Set();
   liveEntries.forEach(e=>{
     const bk = getBulanKey(e.timestamp);
     if(bk) bulanSet.add(bk);
     if(e.unit) unitSet.add(e.unit);
   });
 
-  // Bulan dropdown
+  // Bulan dropdown — filter sesuai semester aktif
   const bSel = document.getElementById('f-bulan');
   const bCur = bSel.value;
+  const semFil = activeFilter.semester;
   bSel.innerHTML = '<option value="">Semua Bulan</option>';
   [...bulanSet].sort().reverse().forEach(k=>{
+    // kalau semester aktif, hanya tampilkan bulan yg masuk semester itu
+    if(semFil && getSemesterOfKey(k) !== semFil) return;
     const opt = document.createElement('option');
     opt.value = k; opt.textContent = getBulanLabel(k);
     if(k===bCur) opt.selected=true;
@@ -968,25 +1029,36 @@ function buildFilterOptions(){
   });
 }
 
-function applyFilter(){
+function applyFilter(changedId){
+  const prevSem = activeFilter.semester;
+  activeFilter.semester = document.getElementById('f-semester').value;
+  activeFilter.unit     = document.getElementById('f-unit-filter').value;
+
+  // Kalau semester berubah, reset pilihan bulan dan rebuild dropdown
+  if(activeFilter.semester !== prevSem){
+    activeFilter.bulan = '';
+    document.getElementById('f-bulan').value = '';
+    buildFilterOptions();  // rebuild bulan sesuai semester baru
+  }
   activeFilter.bulan = document.getElementById('f-bulan').value;
-  activeFilter.unit  = document.getElementById('f-unit-filter').value;
+
   respPage = 1;
 
-  const isActive = activeFilter.bulan || activeFilter.unit;
+  const isActive = activeFilter.bulan || activeFilter.unit || activeFilter.semester;
   document.getElementById('reset-btn').style.display = isActive ? '' : 'none';
   document.getElementById('filter-info').style.display = isActive ? '' : 'none';
 
   const parts = [];
-  if(activeFilter.bulan) parts.push(getBulanLabel(activeFilter.bulan));
-  if(activeFilter.unit)  parts.push(activeFilter.unit);
+  if(activeFilter.semester) parts.push(getSemesterLabel(activeFilter.semester));
+  if(activeFilter.bulan)    parts.push(getBulanLabel(activeFilter.bulan));
+  if(activeFilter.unit)     parts.push(activeFilter.unit);
   document.getElementById('filter-badge-text').textContent = 'Filter: ' + parts.join(' · ');
 
   // Update period label in header
   document.getElementById('period-label').textContent = parts.length ? parts.join(' · ') : 'Semua Periode';
 
   // style selects
-  ['f-bulan','f-unit-filter'].forEach(id=>{
+  ['f-semester','f-bulan','f-unit-filter'].forEach(id=>{
     const el = document.getElementById(id);
     el.className = 'filter-select' + (el.value ? ' filter-active' : '');
   });
@@ -995,10 +1067,12 @@ function applyFilter(){
 }
 
 function resetFilter(){
-  activeFilter = {bulan:'', unit:''};
+  activeFilter = {bulan:'', unit:'', semester:''};
+  document.getElementById('f-semester').value = '';
   document.getElementById('f-bulan').value = '';
   document.getElementById('f-unit-filter').value = '';
   respPage = 1;
+  buildFilterOptions();
   applyFilter();
 }
 
@@ -1122,8 +1196,14 @@ function renderIkpComparison(){
   const card = document.getElementById('cmp-card');
   const empty = document.getElementById('cmp-empty');
 
-  if(tren.length < 1){ card.style.display='none'; return; }
   card.style.display='';
+  if(tren.length < 1){
+    empty.style.display='block';
+    empty.textContent='Butuh minimal 1 bulan data dari Google Sheets';
+    document.getElementById('cmp-val-cur').textContent='—';
+    document.getElementById('cmp-val-prev').textContent='—';
+    return;
+  }
 
   // Ambil bulan ini = bulan terbaru, bulan lalu = sebelumnya
   const cur  = tren[tren.length-1];
@@ -1171,8 +1251,8 @@ function renderIkpComparison(){
 // TARGET SAMPEL PER UNIT
 // ════════════════════════════════════════════════
 function renderTargetSampel(){
-  // Hitung responden bulan ini (bulan terbaru dari data live)
-  const bulanMap = {};
+  // Kumpulkan responden per bulan per unit dari seluruh liveEntries
+  const bulanMap = {};  // {'YYYY-MM': {'UnitName': count}}
   liveEntries.forEach(e=>{
     const bk = getBulanKey(e.timestamp);
     if(!bk) return;
@@ -1181,30 +1261,58 @@ function renderTargetSampel(){
     bulanMap[bk][u] = (bulanMap[bk][u]||0) + 1;
   });
 
-  // Pakai filter bulan aktif atau bulan terbaru
-  let bulanKey = activeFilter.bulan;
-  if(!bulanKey){
+  const sem    = activeFilter.semester;  // 'S1','S2', atau ''
+  const bulan  = activeFilter.bulan;     // 'YYYY-MM' atau ''
+
+  // Tentukan mode: bulan, semester, atau semua
+  let modeLabel = '';
+  let unitCounts = {};   // {unitName: count} akumulasi sesuai mode
+  let targetKey  = 'targetB';  // default per bulan
+
+  if(bulan){
+    // Mode: bulan spesifik → pakai targetB
+    targetKey  = 'targetB';
+    modeLabel  = getBulanLabel(bulan);
+    unitCounts = bulanMap[bulan] || {};
+
+  } else if(sem){
+    // Mode: semester → akumulasi semua bulan dalam semester itu, pakai targetS
+    targetKey = 'targetS';
+    // Ambil tahun dari data yang ada di semester ini
+    const keysInSem = Object.keys(bulanMap).filter(k=>getSemesterOfKey(k)===sem).sort();
+    const year = keysInSem.length ? keysInSem[0].split('-')[0] : '';
+    modeLabel = getSemesterLabel(sem, year);
+    keysInSem.forEach(bk=>{
+      Object.entries(bulanMap[bk]).forEach(([u,n])=>{
+        unitCounts[u] = (unitCounts[u]||0) + n;
+      });
+    });
+
+  } else {
+    // Mode: semua data → pakai targetB (default per bulan), tampilkan bulan terbaru
+    targetKey = 'targetB';
     const keys = Object.keys(bulanMap).sort();
-    bulanKey = keys[keys.length-1] || '';
+    const latestKey = keys[keys.length-1] || '';
+    modeLabel  = latestKey ? getBulanLabel(latestKey) : 'Semua';
+    unitCounts = latestKey ? (bulanMap[latestKey]||{}) : {};
   }
 
   const badge = document.getElementById('target-period-badge');
-  badge.textContent = bulanKey ? getBulanLabel(bulanKey) : 'Semua';
+  badge.textContent = modeLabel || 'Semua';
 
-  const unitCounts = bulanKey ? (bulanMap[bulanKey]||{}) : {};
-
-  // Hitung capaian per target unit
+  // Hitung capaian per unit
   const rows = TARGET_SAMPEL.map(t=>{
-    // cari jumlah dari semua alias
     let count = 0;
     Object.entries(unitCounts).forEach(([u,n])=>{
-      if(t.aliases.some(a=>u.toLowerCase().includes(a.toLowerCase())||a.toLowerCase().includes(u.toLowerCase()))){
-        count += n;
-      }
+      if(t.aliases.some(a=>
+        u.toLowerCase().includes(a.toLowerCase()) ||
+        a.toLowerCase().includes(u.toLowerCase())
+      )) count += n;
     });
-    const pct = t.target > 0 ? Math.min(count/t.target, 1) : 0;
-    return {...t, count, pct};
-  }).sort((a,b)=>a.pct-b.pct);  // urutkan dari terendah
+    const tgt = t[targetKey] || t.targetB;
+    const pct = tgt > 0 ? Math.min(count/tgt, 1) : 0;
+    return {...t, count, tgt, pct};
+  }).sort((a,b)=>a.pct-b.pct);
 
   const ok     = rows.filter(r=>r.pct>=1).length;
   const warn   = rows.filter(r=>r.pct>=0.5&&r.pct<1).length;
@@ -1219,12 +1327,13 @@ function renderTargetSampel(){
     const pctPx = (r.pct*100).toFixed(1);
     const cls   = r.pct>=1 ? 'target-ok' : r.pct>=0.5 ? 'target-warn' : 'target-danger';
     const color = r.pct>=1 ? '#1a8a4a'   : r.pct>=0.5 ? '#ef9f27'     : '#c93535';
+    const pctDisp = r.pct>=1 ? '✓' : (r.pct*100).toFixed(0)+'%';
     return `<div class="target-row">
       <div class="target-lbl" title="${r.unit}">${r.unit}</div>
       <div class="target-track">
         <div class="target-fill" style="width:${pctPx}%;background:${color};"></div>
       </div>
-      <div class="target-val ${cls}">${r.count}/${r.target}</div>
+      <div class="target-val ${cls}">${r.count}/${r.tgt}</div>
     </div>`;
   }).join('');
 }
@@ -1305,6 +1414,14 @@ function renderRadar(){
   const sel    = document.getElementById('radar-unit-sel');
   const canvas = document.getElementById('radar-canvas');
   const empty  = document.getElementById('radar-empty');
+  // Pastikan canvas punya ukuran fisik yang benar di mobile
+  const cw = Math.min(canvas.parentElement ? canvas.parentElement.clientWidth || 300 : 300, 320);
+  if(canvas.width !== cw * (window.devicePixelRatio||1)){
+    canvas.width  = cw * (window.devicePixelRatio||1);
+    canvas.height = Math.round(cw * 0.94) * (window.devicePixelRatio||1);
+    canvas.style.width  = cw + 'px';
+    canvas.style.height = Math.round(cw * 0.94) + 'px';
+  }
   const unitMap = buildUnitUnsurMap();
 
   // Update options
@@ -1479,14 +1596,17 @@ function setTopikFilter(tid, el){
 }
 
 function renderAll(){
-  render(); renderJK(); renderUsia(); renderRespTable();
-  renderIkpComparison();
-  renderTargetSampel();
-  renderHeatmap();
+  try{ render(); } catch(e){ console.error('render',e); }
+  try{ renderJK(); } catch(e){ console.error('renderJK',e); }
+  try{ renderUsia(); } catch(e){ console.error('renderUsia',e); }
+  try{ renderRespTable(); } catch(e){ console.error('renderRespTable',e); }
+  try{ renderIkpComparison(); } catch(e){ console.error('renderIkpComparison',e); }
+  try{ renderTargetSampel(); } catch(e){ console.error('renderTargetSampel',e); }
+  try{ renderHeatmap(); } catch(e){ console.error('renderHeatmap',e); }
   requestAnimationFrame(()=>{
-    renderTren();
-    renderRadar();
-    setTimeout(renderSaran, 0);
+    try{ renderTren(); } catch(e){ console.error('renderTren',e); }
+    try{ renderRadar(); } catch(e){ console.error('renderRadar',e); }
+    setTimeout(()=>{ try{ renderSaran(); } catch(e){ console.error('renderSaran',e); } }, 0);
   });
 }
 
@@ -1536,7 +1656,7 @@ function renderTren(){
 
   // Setup canvas resolution
   const wrap = canvas.parentElement;
-  const W = wrap.clientWidth || 340;
+  const W = (wrap.clientWidth > 0 ? wrap.clientWidth : window.innerWidth - 60) || 340;
   const H = 180;
   canvas.width  = W * devicePixelRatio;
   canvas.height = H * devicePixelRatio;
