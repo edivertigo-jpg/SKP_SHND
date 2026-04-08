@@ -296,6 +296,59 @@ tr:last-child td{border-bottom:none;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 @media(min-width:480px){.m4{grid-template-columns:repeat(4,1fr);}}
+
+/* IKP COMPARISON */
+.ikp-cmp{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:12px;}
+.ikp-cmp-box{background:var(--g0);border-radius:10px;padding:10px 12px;text-align:center;}
+.ikp-cmp-lbl{font-size:10px;color:var(--g5);font-weight:600;margin-bottom:3px;}
+.ikp-cmp-val{font-size:22px;font-weight:700;color:var(--g9);}
+.ikp-cmp-sub{font-size:10px;color:var(--g5);margin-top:1px;}
+.ikp-cmp-arrow{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.ikp-delta{font-size:13px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;}
+.delta-up{background:var(--green-l);color:var(--green);}
+.delta-dn{background:var(--red-l);color:var(--red);}
+.delta-eq{background:var(--g1);color:var(--g5);}
+
+/* TARGET SAMPEL PER UNIT */
+.target-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.target-lbl{font-size:11px;color:var(--g7);width:100px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.target-track{flex:1;height:14px;background:var(--g1);border-radius:7px;overflow:hidden;position:relative;}
+.target-fill{height:100%;border-radius:7px;transition:width .7s cubic-bezier(.4,0,.2,1);}
+.target-val{font-size:10px;font-weight:700;width:52px;text-align:right;white-space:nowrap;}
+.target-ok{color:var(--green);}
+.target-warn{color:var(--amber);}
+.target-danger{color:var(--red);}
+.target-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.ts-box{border-radius:8px;padding:8px 10px;text-align:center;}
+.ts-n{font-size:18px;font-weight:700;}
+.ts-lbl{font-size:10px;font-weight:600;opacity:.75;}
+
+/* HEATMAP */
+.heatmap-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.heatmap-table{border-collapse:separate;border-spacing:3px;font-size:10px;white-space:nowrap;}
+.heatmap-table th{font-size:9px;color:var(--g5);font-weight:600;padding:3px 4px;text-align:center;letter-spacing:.03em;}
+.heatmap-table td.hm-unit{font-size:10px;color:var(--g7);font-weight:600;padding:3px 6px 3px 0;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis;text-align:left;}
+.hm-cell{width:36px;height:28px;border-radius:5px;text-align:center;vertical-align:middle;font-size:10px;font-weight:700;cursor:default;transition:transform .1s;}
+.hm-cell:hover{transform:scale(1.15);z-index:2;position:relative;}
+.hm-legend{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.hm-leg-scale{display:flex;gap:3px;align-items:center;}
+.hm-leg-box{width:16px;height:12px;border-radius:3px;}
+.hm-leg-lbl{font-size:10px;color:var(--g5);}
+
+/* RADAR */
+.radar-wrap{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;}
+.radar-canvas{display:block;max-width:320px;width:100%;}
+.radar-unit-sel{width:100%;padding:7px 28px 7px 10px;border:1.5px solid var(--g2);border-radius:8px;font-size:12px;font-family:inherit;color:var(--g9);background:var(--g0);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7a99' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;margin-bottom:12px;}
+
+/* TOPIK SARAN */
+.topik-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.topik-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;border:1.5px solid var(--g2);background:#fff;font-size:11px;font-weight:600;color:var(--g5);cursor:pointer;transition:all .15s;}
+.topik-chip.active{border-color:var(--blue);background:var(--blue-l);color:var(--blue);}
+.topik-chip .topik-n{font-size:10px;background:var(--g1);color:var(--g5);border-radius:10px;padding:1px 6px;margin-left:2px;}
+.topik-chip.active .topik-n{background:var(--blue);color:#fff;}
+.saran-filter-row{display:flex;gap:8px;margin-bottom:10px;align-items:center;}
+.saran-unit-sel{flex:1;padding:6px 28px 6px 10px;border:1.5px solid var(--g2);border-radius:8px;font-size:11px;font-family:inherit;color:var(--g9);background:var(--g0);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7a99' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer;transition:border-color .2s;}
+.saran-unit-sel:focus{outline:none;border-color:var(--blue);}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -445,6 +498,49 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzs3GMOQu44zWgLilCaqECf
     </div>
   </div>
 
+  <!-- IKP COMPARISON -->
+  <div class="card" id="cmp-card">
+    <div class="card-title"><span>Perbandingan IKP Bulan Ini vs Lalu</span></div>
+    <div class="ikp-cmp">
+      <div class="ikp-cmp-box">
+        <div class="ikp-cmp-lbl" id="cmp-lbl-prev">Bulan Lalu</div>
+        <div class="ikp-cmp-val" id="cmp-val-prev">—</div>
+        <div class="ikp-cmp-sub" id="cmp-n-prev">— resp</div>
+      </div>
+      <div class="ikp-cmp-arrow">
+        <div class="ikp-delta delta-eq" id="cmp-delta">—</div>
+        <div style="font-size:9px;color:var(--g5);margin-top:2px;" id="cmp-pct">—</div>
+      </div>
+      <div class="ikp-cmp-box" style="border:1.5px solid #93c5fd;">
+        <div class="ikp-cmp-lbl" id="cmp-lbl-cur">Bulan Ini</div>
+        <div class="ikp-cmp-val" style="color:var(--blue);" id="cmp-val-cur">—</div>
+        <div class="ikp-cmp-sub" id="cmp-n-cur">— resp</div>
+      </div>
+    </div>
+    <div id="cmp-empty" style="display:none;text-align:center;font-size:12px;color:var(--g3);padding:10px 0;">Butuh minimal 2 bulan data untuk perbandingan</div>
+  </div>
+
+  <!-- TARGET SAMPEL PER UNIT -->
+  <div class="card">
+    <div class="card-title"><span>Capaian Sampel per Unit</span><span class="badge ct-badge b-teal" id="target-period-badge">Bulan Ini</span></div>
+    <div class="target-summary">
+      <div class="ts-box" style="background:var(--green-l);color:var(--green);">
+        <div class="ts-n" id="ts-ok">—</div>
+        <div class="ts-lbl">Tercapai</div>
+      </div>
+      <div class="ts-box" style="background:var(--amber-l);color:var(--amber);">
+        <div class="ts-n" id="ts-warn">—</div>
+        <div class="ts-lbl">≥50%</div>
+      </div>
+      <div class="ts-box" style="background:var(--red-l);color:var(--red);">
+        <div class="ts-n" id="ts-danger">—</div>
+        <div class="ts-lbl">&lt;50%</div>
+      </div>
+    </div>
+    <div id="target-bars"></div>
+    <div style="font-size:10px;color:var(--g5);margin-top:8px;">* Target sampel/bulan berdasarkan Rumus Krejcie-Morgan</div>
+  </div>
+
   <!-- PER UNSUR BAR -->
   <div class="card">
     <div class="card-title"><span>Skor per Unsur Pelayanan</span><span class="badge ct-badge b-teal">9 Unsur</span></div>
@@ -484,6 +580,37 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzs3GMOQu44zWgLilCaqECf
         <tbody id="unit-tbody"></tbody>
         <tfoot id="unit-tf"></tfoot>
       </table>
+    </div>
+  </div>
+
+  <!-- HEATMAP UNIT x UNSUR -->
+  <div class="card">
+    <div class="card-title"><span>Heatmap Unit × Unsur</span><span class="badge ct-badge b-teal">Nilai IKP</span></div>
+    <div style="font-size:11px;color:var(--g5);margin-bottom:10px;">Tap sel untuk lihat nilai. Merah = rendah, Hijau = tinggi.</div>
+    <div class="heatmap-wrap">
+      <div id="heatmap-container"></div>
+    </div>
+    <div class="hm-legend">
+      <span class="hm-leg-lbl">Rendah</span>
+      <div class="hm-leg-scale">
+        <div class="hm-leg-box" style="background:#c93535;"></div>
+        <div class="hm-leg-box" style="background:#ef9f27;"></div>
+        <div class="hm-leg-box" style="background:#1d9e75;"></div>
+        <div class="hm-leg-box" style="background:#0f6e56;"></div>
+      </div>
+      <span class="hm-leg-lbl">Tinggi</span>
+    </div>
+  </div>
+
+  <!-- RADAR CHART PER UNIT -->
+  <div class="card">
+    <div class="card-title"><span>Profil 9 Unsur per Unit</span><span class="badge ct-badge b-teal">Radar Chart</span></div>
+    <div class="radar-wrap">
+      <select class="radar-unit-sel" id="radar-unit-sel" onchange="renderRadar()">
+        <option value="">-- Pilih Unit --</option>
+      </select>
+      <canvas class="radar-canvas" id="radar-canvas" width="320" height="300"></canvas>
+      <div id="radar-empty" style="display:none;text-align:center;font-size:12px;color:var(--g3);padding:20px 0;">Pilih unit untuk melihat profil radar</div>
     </div>
   </div>
 
@@ -555,8 +682,17 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzs3GMOQu44zWgLilCaqECf
     <div style="font-size:10px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 4px;">Kata yang Sering Muncul</div>
     <div class="wc-wrap" id="wc-wrap"></div>
 
+    <!-- Pengelompokan Topik -->
+    <div style="font-size:10px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px;">Topik Masukan</div>
+    <div class="topik-grid" id="topik-grid"></div>
+
     <!-- Tab filter -->
     <div style="font-size:10px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px;">Daftar Masukan</div>
+    <div class="saran-filter-row">
+      <select class="saran-unit-sel" id="saran-unit-filter" onchange="renderSaranList()">
+        <option value="">Semua Unit</option>
+      </select>
+    </div>
     <div class="sent-tabs">
       <button class="sent-tab active" onclick="setSentTab('semua',this)">Semua</button>
       <button class="sent-tab" onclick="setSentTab('pos',this)">Positif</button>
@@ -688,6 +824,38 @@ const SQ_META = [
   {q:'Kualitas sarana dan prasarana di RS',sub:'1=Buruk · 2=Cukup · 3=Baik · 4=Sangat baik',l1:'Buruk',l4:'Sangat Baik'},
   {q:'Penanganan pengaduan pengguna layanan di RS',sub:'1=Tidak ada · 2=Ada tapi tdk berfungsi · 3=Kurang maksimal · 4=Dikelola baik',l1:'Tidak Ada',l4:'Dikelola Baik'},
 ];
+
+// ═══════════════════════════════════════════════
+// TARGET SAMPEL PER UNIT (dari Excel Krejcie-Morgan)
+// Mapping: nama di Excel → nama unit di data survei
+// ═══════════════════════════════════════════════
+const TARGET_SAMPEL = [
+  {unit:'Farmasi Ranap + rajal', target:64, aliases:['Farmasi Rawat Inap','Farmasi Rawat Jalan','Farmasi Ranap','Farmasi Rajal']},
+  {unit:'FO',                    target:64, aliases:['Pendaftaran','FO','Front Office']},
+  {unit:'Gizi',                  target:54, aliases:['Gizi']},
+  {unit:'HD',                    target:58, aliases:['Unit Dialisis','HD','Hemodialisa']},
+  {unit:'IGD',                   target:62, aliases:['IGD']},
+  {unit:'Intensive',             target:10, aliases:['ICU/HCU','Intensive','ICU','HCU']},
+  {unit:'Kasir',                 target:64, aliases:['Kasir']},
+  {unit:'Lab',                   target:62, aliases:['Laboratorium','Lab']},
+  {unit:'LT1',                   target:52, aliases:['Rawat Inap Lantai 1','LT1']},
+  {unit:'LT2',                   target:34, aliases:['Rawat Inap Lantai 2','LT2']},
+  {unit:'LT3',                   target:27, aliases:['Rawat Inap Lantai 3','LT3']},
+  {unit:'OK',                    target:15, aliases:['Kamar Operasi','OK','Kamar OK']},
+  {unit:'Poliklinik',            target:64, aliases:['Rawat Jalan/Poliklinik','Poliklinik']},
+  {unit:'R Bayi',                target:38, aliases:['Ruang Bayi','R Bayi','Ruang Bersalin']},
+  {unit:'Ronsen',                target:59, aliases:['Radiologi','Ronsen','Rontgen']},
+  {unit:'VK',                    target:48, aliases:['Ruang Bersalin','VK','Kamar Bersalin']},
+];
+
+function matchTarget(unitName){
+  const u = (unitName||'').toLowerCase().trim();
+  for(const t of TARGET_SAMPEL){
+    if(t.aliases.some(a=>u.includes(a.toLowerCase())||a.toLowerCase().includes(u))) return t;
+    if(u===t.unit.toLowerCase()) return t;
+  }
+  return null;
+}
 
 // ── Live entries dari Google Sheets
 let liveEntries = [];
@@ -946,11 +1114,378 @@ function compute(){
   return {tp,tu,n,unsur,units:Object.values(unitMap).sort((a,b)=>b.n-a.n),dist};
 }
 
+// ════════════════════════════════════════════════
+// IKP COMPARISON — bulan ini vs bulan lalu
+// ════════════════════════════════════════════════
+function renderIkpComparison(){
+  const tren = computeTren();
+  const card = document.getElementById('cmp-card');
+  const empty = document.getElementById('cmp-empty');
+
+  if(tren.length < 1){ card.style.display='none'; return; }
+  card.style.display='';
+
+  // Ambil bulan ini = bulan terbaru, bulan lalu = sebelumnya
+  const cur  = tren[tren.length-1];
+  const prev = tren.length >= 2 ? tren[tren.length-2] : null;
+
+  document.getElementById('cmp-lbl-cur').textContent  = cur.label;
+  document.getElementById('cmp-val-cur').textContent  = fix2(cur.ikp);
+  document.getElementById('cmp-n-cur').textContent    = cur.n + ' resp';
+
+  if(!prev){
+    document.getElementById('cmp-lbl-prev').textContent = '—';
+    document.getElementById('cmp-val-prev').textContent = '—';
+    document.getElementById('cmp-n-prev').textContent   = '—';
+    document.getElementById('cmp-delta').textContent    = '—';
+    document.getElementById('cmp-pct').textContent      = '';
+    empty.style.display='block';
+    return;
+  }
+  empty.style.display='none';
+  document.getElementById('cmp-lbl-prev').textContent = prev.label;
+  document.getElementById('cmp-val-prev').textContent = fix2(prev.ikp);
+  document.getElementById('cmp-n-prev').textContent   = prev.n + ' resp';
+
+  const diff = cur.ikp - prev.ikp;
+  const pct  = prev.ikp > 0 ? (diff/prev.ikp*100) : 0;
+  const deltaEl = document.getElementById('cmp-delta');
+  const pctEl   = document.getElementById('cmp-pct');
+
+  if(Math.abs(diff) < 0.01){
+    deltaEl.textContent = '= Sama';
+    deltaEl.className   = 'ikp-delta delta-eq';
+    pctEl.textContent   = '0,00%';
+  } else if(diff > 0){
+    deltaEl.textContent = '▲ +' + fix2(diff);
+    deltaEl.className   = 'ikp-delta delta-up';
+    pctEl.textContent   = '+' + pct.toFixed(2).replace('.',',') + '%';
+  } else {
+    deltaEl.textContent = '▼ ' + fix2(diff);
+    deltaEl.className   = 'ikp-delta delta-dn';
+    pctEl.textContent   = pct.toFixed(2).replace('.',',') + '%';
+  }
+}
+
+// ════════════════════════════════════════════════
+// TARGET SAMPEL PER UNIT
+// ════════════════════════════════════════════════
+function renderTargetSampel(){
+  // Hitung responden bulan ini (bulan terbaru dari data live)
+  const bulanMap = {};
+  liveEntries.forEach(e=>{
+    const bk = getBulanKey(e.timestamp);
+    if(!bk) return;
+    if(!bulanMap[bk]) bulanMap[bk] = {};
+    const u = e.unit||'Lainnya';
+    bulanMap[bk][u] = (bulanMap[bk][u]||0) + 1;
+  });
+
+  // Pakai filter bulan aktif atau bulan terbaru
+  let bulanKey = activeFilter.bulan;
+  if(!bulanKey){
+    const keys = Object.keys(bulanMap).sort();
+    bulanKey = keys[keys.length-1] || '';
+  }
+
+  const badge = document.getElementById('target-period-badge');
+  badge.textContent = bulanKey ? getBulanLabel(bulanKey) : 'Semua';
+
+  const unitCounts = bulanKey ? (bulanMap[bulanKey]||{}) : {};
+
+  // Hitung capaian per target unit
+  const rows = TARGET_SAMPEL.map(t=>{
+    // cari jumlah dari semua alias
+    let count = 0;
+    Object.entries(unitCounts).forEach(([u,n])=>{
+      if(t.aliases.some(a=>u.toLowerCase().includes(a.toLowerCase())||a.toLowerCase().includes(u.toLowerCase()))){
+        count += n;
+      }
+    });
+    const pct = t.target > 0 ? Math.min(count/t.target, 1) : 0;
+    return {...t, count, pct};
+  }).sort((a,b)=>a.pct-b.pct);  // urutkan dari terendah
+
+  const ok     = rows.filter(r=>r.pct>=1).length;
+  const warn   = rows.filter(r=>r.pct>=0.5&&r.pct<1).length;
+  const danger = rows.filter(r=>r.pct<0.5).length;
+
+  document.getElementById('ts-ok').textContent     = ok;
+  document.getElementById('ts-warn').textContent   = warn;
+  document.getElementById('ts-danger').textContent = danger;
+
+  const wrap = document.getElementById('target-bars');
+  wrap.innerHTML = rows.map(r=>{
+    const pctPx = (r.pct*100).toFixed(1);
+    const cls   = r.pct>=1 ? 'target-ok' : r.pct>=0.5 ? 'target-warn' : 'target-danger';
+    const color = r.pct>=1 ? '#1a8a4a'   : r.pct>=0.5 ? '#ef9f27'     : '#c93535';
+    return `<div class="target-row">
+      <div class="target-lbl" title="${r.unit}">${r.unit}</div>
+      <div class="target-track">
+        <div class="target-fill" style="width:${pctPx}%;background:${color};"></div>
+      </div>
+      <div class="target-val ${cls}">${r.count}/${r.target}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+// HEATMAP UNIT × UNSUR
+// ════════════════════════════════════════════════
+function hmColor(v){
+  // v = IKP 25-100, gradient merah-kuning-hijau
+  if(!v || v===0) return {bg:'#f0f0f0',fg:'#999'};
+  if(v < 65)    return {bg:'#fca5a5',fg:'#7f1d1d'};
+  if(v < 70)    return {bg:'#fdba74',fg:'#7c2d12'};
+  if(v < 76.61) return {bg:'#fde68a',fg:'#78350f'};
+  if(v < 82)    return {bg:'#86efac',fg:'#14532d'};
+  if(v < 88.31) return {bg:'#4ade80',fg:'#14532d'};
+  return              {bg:'#16a34a',fg:'#fff'};
+}
+
+function renderHeatmap(){
+  const D = compute();
+  const unsurNames = ['U1','U2','U3','U4','U5','U6','U7','U8','U9'];
+  const unsurFull  = ['Persyaratan','Prosedur','Waktu','Biaya','Produk','Kompetensi','Perilaku','Sarana','Aduan'];
+
+  // Kumpulkan data per unit per unsur dari filtered entries
+  const filtered = getFiltered();
+  const unitUnsur = {};
+  filtered.forEach(e=>{
+    const u = e.unit||'Lainnya';
+    if(!unitUnsur[u]) unitUnsur[u] = Array(9).fill(0).map(()=>({p:0,t:0}));
+    ['u1','u2','u3','u4','u5','u6','u7','u8','u9'].forEach((k,i)=>{
+      const v = parseInt(e[k]);
+      if(v>=1&&v<=4){ unitUnsur[u][i].p+=v; unitUnsur[u][i].t++; }
+    });
+  });
+
+  const units = Object.keys(unitUnsur).sort();
+  if(!units.length){
+    document.getElementById('heatmap-container').innerHTML = '<div style="text-align:center;color:var(--g3);font-size:12px;padding:20px;">Tidak ada data</div>';
+    return;
+  }
+
+  let html = '<table class="heatmap-table"><thead><tr><th style="text-align:left;">Unit</th>';
+  unsurNames.forEach((u,i)=>{ html+=`<th title="${unsurFull[i]}">${u}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  units.forEach(u=>{
+    html += `<tr><td class="hm-unit" title="${u}">${u}</td>`;
+    unitUnsur[u].forEach(({p,t},i)=>{
+      const v = t>0?(p/t)*25:0;
+      const c = hmColor(v);
+      const disp = t>0 ? fix2(v) : '–';
+      html += `<td class="hm-cell" style="background:${c.bg};color:${c.fg};" title="${unsurFull[i]}: ${disp}">${disp}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('heatmap-container').innerHTML = html;
+}
+
+// ════════════════════════════════════════════════
+// RADAR CHART PER UNIT
+// ════════════════════════════════════════════════
+function buildUnitUnsurMap(){
+  const filtered = getFiltered();
+  const map = {};
+  filtered.forEach(e=>{
+    const u = e.unit||'Lainnya';
+    if(!map[u]) map[u] = Array(9).fill(0).map(()=>({p:0,t:0}));
+    ['u1','u2','u3','u4','u5','u6','u7','u8','u9'].forEach((k,i)=>{
+      const v=parseInt(e[k]);
+      if(v>=1&&v<=4){map[u][i].p+=v;map[u][i].t++;}
+    });
+  });
+  return map;
+}
+
+function renderRadar(){
+  const sel    = document.getElementById('radar-unit-sel');
+  const canvas = document.getElementById('radar-canvas');
+  const empty  = document.getElementById('radar-empty');
+  const unitMap = buildUnitUnsurMap();
+
+  // Update options
+  const units = Object.keys(unitMap).sort();
+  const curVal = sel.value;
+  sel.innerHTML = '<option value="">-- Pilih Unit --</option>';
+  units.forEach(u=>{
+    const o = document.createElement('option');
+    o.value=u; o.textContent=u;
+    if(u===curVal) o.selected=true;
+    sel.appendChild(o);
+  });
+  // Pilih otomatis unit pertama kalau belum dipilih
+  if(!sel.value && units.length) sel.value = units[0];
+
+  const unit = sel.value;
+  if(!unit||!unitMap[unit]){
+    canvas.style.display='none';
+    empty.style.display='block';
+    return;
+  }
+  canvas.style.display='block';
+  empty.style.display='none';
+
+  const data    = unitMap[unit].map(({p,t})=>t>0?(p/t)*25:0);
+  const labels  = ['Persyaratan','Prosedur','Waktu','Biaya','Produk','Kompetensi','Perilaku','Sarana','Aduan'];
+  const N       = labels.length;
+  const ctx     = canvas.getContext('2d');
+  const W       = canvas.offsetWidth || 320;
+  const H       = 300;
+  canvas.width  = W;
+  canvas.height = H;
+  ctx.clearRect(0,0,W,H);
+
+  const cx = W/2, cy = H/2 - 10;
+  const R  = Math.min(cx,cy) - 50;
+
+  // Grid rings
+  const rings = [25,50,75,100];
+  rings.forEach(val=>{
+    const r = R*(val-25)/75;
+    ctx.beginPath();
+    for(let i=0;i<N;i++){
+      const angle = (Math.PI*2*i/N) - Math.PI/2;
+      const x = cx + r*Math.cos(angle);
+      const y = cy + r*Math.sin(angle);
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = val===100 ? '#dde1ec' : '#eef0f6';
+    ctx.lineWidth = val===100 ? 1.5 : 1;
+    ctx.stroke();
+    // Label ring
+    ctx.fillStyle='#9ca3af';
+    ctx.font='9px Plus Jakarta Sans,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(val, cx+3, cy-r+3);
+  });
+
+  // Spokes
+  for(let i=0;i<N;i++){
+    const angle = (Math.PI*2*i/N) - Math.PI/2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+R*Math.cos(angle), cy+R*Math.sin(angle));
+    ctx.strokeStyle='#eef0f6';
+    ctx.lineWidth=1;
+    ctx.stroke();
+  }
+
+  // Data polygon
+  ctx.beginPath();
+  data.forEach((v,i)=>{
+    const angle = (Math.PI*2*i/N) - Math.PI/2;
+    const r = R*Math.max(0,(v-25)/75);
+    const x = cx + r*Math.cos(angle);
+    const y = cy + r*Math.sin(angle);
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle   = 'rgba(26,79,160,.18)';
+  ctx.strokeStyle = '#1a4fa0';
+  ctx.lineWidth   = 2;
+  ctx.fill();
+  ctx.stroke();
+
+  // Dots
+  data.forEach((v,i)=>{
+    const angle = (Math.PI*2*i/N) - Math.PI/2;
+    const r = R*Math.max(0,(v-25)/75);
+    const x = cx + r*Math.cos(angle);
+    const y = cy + r*Math.sin(angle);
+    ctx.beginPath();
+    ctx.arc(x,y,4,0,Math.PI*2);
+    const m = mutu(v);
+    ctx.fillStyle = m.c;
+    ctx.fill();
+  });
+
+  // Labels
+  ctx.font = 'bold 10px Plus Jakarta Sans,sans-serif';
+  for(let i=0;i<N;i++){
+    const angle  = (Math.PI*2*i/N) - Math.PI/2;
+    const lx     = cx + (R+22)*Math.cos(angle);
+    const ly     = cy + (R+22)*Math.sin(angle);
+    ctx.fillStyle = '#374162';
+    ctx.textAlign = lx < cx-5 ? 'right' : lx > cx+5 ? 'left' : 'center';
+    ctx.textBaseline = ly < cy-5 ? 'bottom' : ly > cy+5 ? 'top' : 'middle';
+    ctx.fillText(labels[i], lx, ly);
+    // Nilai
+    const v = data[i];
+    const m = mutu(v);
+    ctx.font='9px Plus Jakarta Sans,sans-serif';
+    ctx.fillStyle=m.c;
+    const vx = cx+(R+36)*Math.cos(angle);
+    const vy = cy+(R+36)*Math.sin(angle);
+    ctx.fillText(fix2(v), vx, vy);
+    ctx.font='bold 10px Plus Jakarta Sans,sans-serif';
+  }
+}
+
+// ════════════════════════════════════════════════
+// TOPIK SARAN (pengelompokan otomatis)
+// ════════════════════════════════════════════════
+const TOPIK_DEF = [
+  {id:'antrian',  label:'Antrian & Waktu', icon:'⏳', words:['antri','antrian','lama','tunggu','lambat','cepat','waktu','durasi']},
+  {id:'parkir',   label:'Parkir',          icon:'🅿️', words:['parkir','parkiran','kendaraan','motor','mobil']},
+  {id:'bersih',   label:'Kebersihan',      icon:'🧹', words:['bersih','kotor','kebersihan','sampah','jorok','wangi']},
+  {id:'petugas',  label:'Petugas',         icon:'👨‍⚕️', words:['petugas','dokter','perawat','staff','ramah','sopan','suster','bidan','tenaga']},
+  {id:'fasilitas',label:'Fasilitas',       icon:'🏥', words:['fasilitas','sarana','kamar','ruang','ac','wifi','tv','toilet','kursi','tempat tidur']},
+  {id:'biaya',    label:'Biaya',           icon:'💰', words:['biaya','harga','mahal','tarif','bayar','tagihan','administrasi']},
+  {id:'info',     label:'Informasi',       icon:'ℹ️', words:['informasi','info','jelas','bingung','komunikasi','edukasi','penjelasan']},
+  {id:'positif',  label:'Apresiasi',       icon:'👍', words:['bagus','baik','pertahankan','mantap','sempurna','luar biasa','memuaskan','terimakasih','good']},
+];
+
+let _topikFilter = null;
+
+function deteksiTopik(teks){
+  const lower = teks.toLowerCase();
+  const result = [];
+  TOPIK_DEF.forEach(t=>{
+    if(t.words.some(w=>lower.includes(w))) result.push(t.id);
+  });
+  return result.length ? result : ['lainnya'];
+}
+
+function renderTopikGrid(saranList){
+  const counts = {};
+  saranList.forEach(x=>{
+    deteksiTopik(x.teks).forEach(tid=>{
+      counts[tid] = (counts[tid]||0) + 1;
+    });
+  });
+  const wrap = document.getElementById('topik-grid');
+  if(!wrap) return;
+
+  let html = `<div class="topik-chip${_topikFilter===null?' active':''}" onclick="setTopikFilter(null,this)">
+    Semua <span class="topik-n">${saranList.length}</span></div>`;
+  TOPIK_DEF.forEach(t=>{
+    if(!counts[t.id]) return;
+    html += `<div class="topik-chip${_topikFilter===t.id?' active':''}" onclick="setTopikFilter('${t.id}',this)">
+      ${t.icon} ${t.label} <span class="topik-n">${counts[t.id]}</span></div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+function setTopikFilter(tid, el){
+  _topikFilter = tid;
+  document.querySelectorAll('.topik-chip').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderSaranList();
+}
+
 function renderAll(){
   render(); renderJK(); renderUsia(); renderRespTable();
-  // Render berat dijalankan non-blocking setelah UI utama selesai
+  renderIkpComparison();
+  renderTargetSampel();
+  renderHeatmap();
   requestAnimationFrame(()=>{
     renderTren();
+    renderRadar();
     setTimeout(renderSaran, 0);
   });
 }
@@ -1397,7 +1932,14 @@ function renderSaranList(){
   const sec = document.getElementById('saran-list');
   const chipLabel = {pos:'Positif', neg:'Negatif', neu:'Netral'};
   const chipCls   = {pos:'chip-pos', neg:'chip-neg', neu:'chip-neu'};
-  const filtered = _sentTab==='semua' ? _allSaran : _allSaran.filter(x=>x.s===_sentTab);
+  const unitSel   = document.getElementById('saran-unit-filter');
+  const unitFilter = unitSel ? unitSel.value : '';
+
+  let filtered = _sentTab==='semua' ? _allSaran : _allSaran.filter(x=>x.s===_sentTab);
+  // Apply unit filter
+  if(unitFilter) filtered = filtered.filter(x=>x.unit===unitFilter);
+  // Apply topik filter
+  if(_topikFilter) filtered = filtered.filter(x=>deteksiTopik(x.teks).includes(_topikFilter));
   if(!filtered.length){
     sec.innerHTML='<div class="sent-empty">Tidak ada masukan untuk kategori ini</div>';
     return;
@@ -1482,6 +2024,23 @@ function renderSaran(){
       return `<span class="wc-word" style="font-size:${size}px;background:${cl.bg};color:${cl.c};" title="${n}x">${w}</span>`;
     }).join('');
   }
+
+  // Update unit filter dropdown in saran
+  const unitSel = document.getElementById('saran-unit-filter');
+  if(unitSel){
+    const units = [...new Set(liveEntFilt.map(e=>e.unit).filter(Boolean))].sort();
+    const cur = unitSel.value;
+    unitSel.innerHTML = '<option value="">Semua Unit</option>';
+    units.forEach(u=>{
+      const o = document.createElement('option');
+      o.value=u; o.textContent=u;
+      if(u===cur) o.selected=true;
+      unitSel.appendChild(o);
+    });
+  }
+
+  // Topik
+  renderTopikGrid(_allSaran);
 
   // Render list
   renderSaranList();
