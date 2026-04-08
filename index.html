@@ -1832,9 +1832,9 @@ function exportToExcel(){
 
   // Row summary 1: Total nilai persepsi — label di col R (17), rumus SUM di col S (18)
   // SUM kolom S dari baris 2 s/d lastDataRow (baris data terakhir)
-  const s1Row = lastDataRow + 2;
-  const s2Row = lastDataRow + 3;
-  const s3Row = lastDataRow + 4;
+  const s1Row = dataRowCount + 2; // baris Total Persepsi (header=1, data=dataRowCount, s1=+2)
+  const s2Row = dataRowCount + 3; // baris Total Unsur
+  const s3Row = dataRowCount + 4; // baris Nilai Kepuasan
 
   const summaryRow1 = new Array(19).fill('');
   summaryRow1[17] = 'Total nilai persepsi seluruh responden';
