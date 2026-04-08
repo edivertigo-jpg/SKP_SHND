@@ -1806,7 +1806,7 @@ function exportToExcel(){
     const saran = e.saran || '';
     const excelRow = idx + 2; // +1 header, +1 karena 1-indexed
     // Rumus SUM kolom I s/d Q (U1-U9) persis seperti Excel asli
-    const totalFormula = `=SUM(I${excelRow}:Q${excelRow})`;
+    const totalFormula = `SUM(I${excelRow}:Q${excelRow})`;  // SheetJS: tanpa = di depan
 
     rows.push([
       idx + 1,
@@ -1828,43 +1828,35 @@ function exportToExcel(){
   const dataRowCount = filtered.length;
   const lastDataRow  = dataRowCount + 1; // row excel = data + 1 header
 
-  // Hitung total nilai persepsi U1-U9 dari data yang difilter
-  let totalPersepsi = 0;
-  filtered.forEach(e => {
-    ['u1','u2','u3','u4','u5','u6','u7','u8','u9'].forEach(k => {
-      const v = parseInt(e[k]);
-      if(v >= 1 && v <= 4) totalPersepsi += v;
-    });
-  });
-  const totalTerisi = dataRowCount * 9;
-  const ikpAkhir    = totalTerisi > 0 ? (totalPersepsi / totalTerisi * 25) : 0;
+  // Summary dihitung via rumus Excel langsung (tidak perlu hitung di JS)
 
-  // Row summary 1: Total nilai persepsi — label di col A (0), nilai di col S (18)
+  // Row summary 1: Total nilai persepsi — label di col R (17), rumus SUM di col S (18)
+  // SUM kolom S dari baris 2 s/d lastDataRow (baris data terakhir)
+  const s1Row = lastDataRow + 2;
+  const s2Row = lastDataRow + 3;
+  const s3Row = lastDataRow + 4;
+
   const summaryRow1 = new Array(19).fill('');
   summaryRow1[17] = 'Total nilai persepsi seluruh responden';
-  summaryRow1[18] = totalPersepsi;
+  summaryRow1[18] = { f: `SUM(S2:S${lastDataRow})` };  // SUM kolom TOTAL baris data
   rows.push(summaryRow1);
 
-  // Row summary 2: Total unsur terisi — label di col A (0), nilai di col S (18), catatan di T (19)
-  const summaryRow2 = new Array(20).fill('');
+  // Row summary 2: Total unsur terisi — label di col R (17), rumus di col S (18)
+  const summaryRow2 = new Array(19).fill('');
   summaryRow2[17] = 'Total unsur yang terisi dari seluruh responden (jumlah sampel X 9)';
-  summaryRow2[18] = totalTerisi;
-  // summaryRow2[19] tidak diisi
+  summaryRow2[18] = { f: `COUNTA(A2:A${lastDataRow})*9` };  // jumlah baris x 9 unsur
   rows.push(summaryRow2);
 
-  // Row summary 3: IKP — label di col A, nilai di col S (18)
+  // Row summary 3: Nilai Kepuasan Pasien — label di col R (17), rumus di col S (18)
   const summaryRow3 = new Array(19).fill('');
   summaryRow3[17] = 'Nilai Kepuasan Pasien';
-  summaryRow3[18] = parseFloat(ikpAkhir.toFixed(2));
+  summaryRow3[18] = { f: `S${s1Row}/S${s2Row}*25` };  // IKP = Total persepsi / Total unsur terisi * 25
   rows.push(summaryRow3);
 
   // Build worksheet
   const ws = XLSX.utils.aoa_to_sheet(rows);
 
   // ── Styling baris summary
-  const s1Row = lastDataRow + 2;
-  const s2Row = lastDataRow + 3;
-  const s3Row = lastDataRow + 4;
   const allCols = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S'];
 
   // Row 1 & 2: background kuning seluruh kolom
