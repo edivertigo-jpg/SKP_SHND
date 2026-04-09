@@ -1156,13 +1156,11 @@ async function syncFromSheet() {
     setSyncStatus('ok', `✓ Tersinkron — ${liveEntries.length} responden dari Sheets`);
     buildFilterOptions();
     renderAll();
-    // Re-render canvas dengan beberapa delay — PENTING untuk HP
-    // HP butuh lebih banyak waktu agar layout settle sebelum canvas bisa diukur
-    [400, 900, 1500].forEach(ms => setTimeout(()=>{
+    // Setelah data masuk: paksa render ulang fitur baru dengan delay berlapis
+    // Ini memastikan fitur muncul di HP, GitHub Pages, maupun koneksi lambat
+    [200, 600, 1200, 2500].forEach(ms => setTimeout(()=>{
       try{ renderTren(); } catch(e){}
-      try{ renderRadar(); } catch(e){}
-      try{ renderHeatmap(); } catch(e){}
-      if(ms > 800){ try{ renderSaran(); } catch(e){} }
+      renderNewFeatures();
     }, ms));
   } catch(err) {
     cleanup();
@@ -1271,9 +1269,11 @@ function renderIkpComparison(){
 // TARGET SAMPEL PER UNIT
 // ════════════════════════════════════════════════
 function renderTargetSampel(){
-  // Kumpulkan responden per bulan per unit dari seluruh liveEntries
+  // Kumpulkan responden per bulan per unit
+  // Pakai liveEntries untuk bulanMap (semua data), tapi hitungan unit pakai getFiltered()
   const bulanMap = {};  // {'YYYY-MM': {'UnitName': count}}
-  liveEntries.forEach(e=>{
+  const sourceEntries = liveEntries.length > 0 ? liveEntries : getFiltered();
+  sourceEntries.forEach(e=>{
     const bk = getBulanKey(e.timestamp);
     if(!bk) return;
     if(!bulanMap[bk]) bulanMap[bk] = {};
@@ -1618,37 +1618,44 @@ function setTopikFilter(tid, el){
   renderSaranList();
 }
 
+function renderNewFeatures(){
+  // Render semua fitur baru — dipanggil berulang kali sampai berhasil
+  try{ renderIkpComparison(); } catch(e){}
+  try{ renderTargetSampel(); } catch(e){}
+  try{ renderHeatmap(); } catch(e){}
+  try{ renderRadar(); } catch(e){}
+  try{ renderSaran(); } catch(e){}
+}
+
 function renderAll(){
   try{ render(); } catch(e){ console.error('render',e); }
   try{ renderJK(); } catch(e){ console.error('renderJK',e); }
   try{ renderUsia(); } catch(e){ console.error('renderUsia',e); }
   try{ renderRespTable(); } catch(e){ console.error('renderRespTable',e); }
-  try{ renderIkpComparison(); } catch(e){ console.error('renderIkpComparison',e); }
-  try{ renderTargetSampel(); } catch(e){ console.error('renderTargetSampel',e); }
-  try{ renderHeatmap(); } catch(e){ console.error('renderHeatmap',e); }
-  // Render canvas setelah layout settle — penting di HP
-  // rAF ganda memastikan browser sudah layout sebelum kita ukur canvas
+
+  // Render semua fitur setelah layout settle — pakai rAF + setTimeout berlapis
+  // supaya bekerja di HP lambat maupun browser yang cache agresif (GitHub Pages)
   requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      try{ renderTren(); } catch(e){ console.error('renderTren',e); }
-      try{ renderRadar(); } catch(e){ console.error('renderRadar',e); }
-      setTimeout(()=>{ try{ renderSaran(); } catch(e){ console.error('renderSaran',e); } }, 50);
-    });
-  });
-  // Fallback untuk HP yang sangat lambat
-  setTimeout(()=>{
     try{ renderTren(); } catch(e){}
-    try{ renderRadar(); } catch(e){}
-  }, 600);
+    renderNewFeatures();
+    // Retry 1 — 300ms
+    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 300);
+    // Retry 2 — 800ms (HP lambat / GitHub Pages cache)
+    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 800);
+    // Retry 3 — 1800ms (worst case: koneksi lambat + HP lama)
+    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 1800);
+  });
 }
 
 // ════════════════════════════════════════════════
 // TREN IKP PER BULAN
 // ════════════════════════════════════════════════
 function computeTren(){
-  // Kumpulkan semua entries, group per bulan dari liveEntries saja
+  // Kumpulkan semua entries, group per bulan
+  // Pakai liveEntries kalau ada, fallback ke getFiltered()
   const bulanMap = {};
-  liveEntries.forEach(e=>{
+  const trenSource = liveEntries.length > 0 ? liveEntries : getFiltered();
+  trenSource.forEach(e=>{
     const bk = getBulanKey(e.timestamp);
     if(!bk) return;
     if(!bulanMap[bk]) bulanMap[bk] = {tp:0, tu:0, n:0};
@@ -2652,27 +2659,67 @@ window.addEventListener('resize', ()=>{
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(()=>{
     try{ renderTren(); } catch(e){}
-    try{ renderRadar(); } catch(e){}
+    renderNewFeatures();
   }, 150);
 });
 // Juga handle orientationchange (HP rotate)
 window.addEventListener('orientationchange', ()=>{
-  setTimeout(()=>{
-    try{ renderTren(); } catch(e){}
-    try{ renderRadar(); } catch(e){}
-    try{ renderHeatmap(); } catch(e){}
-  }, 400);
+  setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 400);
+  setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 900);
+});
+
+// ── visibilitychange: re-render saat tab/app kembali aktif (penting di HP)
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible' && liveEntries.length > 0){
+    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 300);
+  }
 });
 
 // ── INIT — tunggu DOM siap lalu render
-document.addEventListener('DOMContentLoaded', ()=>{
+// Pakai satu entry point yang benar — cegah double call
+let _inited = false;
+function _init(){
+  if(_inited) return;
+  _inited = true;
   renderAll();
   syncFromSheet();
-});
-// Fallback: kalau DOMContentLoaded sudah lewat
-if(document.readyState !== 'loading'){
-  setTimeout(()=>{ renderAll(); syncFromSheet(); }, 0);
 }
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', _init);
+} else {
+  // DOM sudah siap (misal GitHub Pages cache / script di akhir body)
+  setTimeout(_init, 0);
+}
+
+// ── IntersectionObserver: re-render fitur baru saat pertama kali masuk viewport
+// Ini memastikan fitur muncul walau render awal terjadi sebelum data masuk
+(function(){
+  if(!('IntersectionObserver' in window)) return;
+  const targets = [
+    {id:'cmp-card',     fn:()=>{ try{renderIkpComparison();}catch(e){} }},
+    {id:'target-bars',  fn:()=>{ try{renderTargetSampel();}catch(e){} }},
+    {id:'heatmap-container', fn:()=>{ try{renderHeatmap();}catch(e){} }},
+    {id:'radar-canvas', fn:()=>{ try{renderRadar();}catch(e){} }},
+    {id:'saran-list',   fn:()=>{ try{renderSaran();}catch(e){} }},
+    {id:'topik-grid',   fn:()=>{ try{renderSaran();}catch(e){} }},
+  ];
+  targets.forEach(({id, fn})=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    let rendered = false;
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting && !rendered && liveEntries.length > 0){
+          rendered = true;
+          fn();
+          obs.disconnect();
+        }
+      });
+    }, {threshold: 0.1});
+    obs.observe(el);
+  });
+})();
 </script>
 </body>
 </html>
