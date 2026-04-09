@@ -297,7 +297,7 @@ tr:last-child td{border-bottom:none;}
 
 @media(min-width:480px){.m4{grid-template-columns:repeat(4,1fr);}}
 
-/* Pastikan semua fitur tampil di HP — jangan duplikasi class di bawah */
+/* CSS duplikat dihapus — definisi lengkap ada di bawah */
 
 /* ── MOBILE FIXES ── */
 @media(max-width:600px){
@@ -1169,14 +1169,14 @@ async function syncFromSheet() {
     buildFilterOptions();
     renderAll();
     dbg('renderAll after sync done');
-    // Paksa scroll sedikit agar IntersectionObserver terpicu di HP
+    // Paksa scroll event agar IntersectionObserver terpicu di HP
     setTimeout(()=>{
       window.dispatchEvent(new Event('scroll'));
       window.dispatchEvent(new Event('resize'));
-    }, 100);
+    }, 150);
     // Setelah data masuk: paksa render ulang fitur baru dengan delay berlapis
     // Ini memastikan fitur muncul di HP, GitHub Pages, maupun koneksi lambat
-    [200, 600, 1200, 2500, 4000, 6000].forEach(ms => setTimeout(()=>{
+    [300, 800, 1500, 3000, 5000].forEach(ms => setTimeout(()=>{
       try{ renderTren(); } catch(e){}
       renderNewFeatures();
       dbg('retry render @'+ms+'ms done');
@@ -1663,13 +1663,9 @@ function renderAll(){
   requestAnimationFrame(()=>{
     try{ renderTren(); } catch(e){}
     renderNewFeatures();
-    // Retry 1 — 300ms
     setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 300);
-    // Retry 2 — 800ms (HP lambat / GitHub Pages cache)
     setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 800);
-    // Retry 3 — 1800ms (worst case: koneksi lambat + HP lama)
     setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 1800);
-    // Retry 4 — 3500ms (HP sangat lambat)
     setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 3500);
   });
 }
@@ -2745,12 +2741,11 @@ window.addEventListener('resize', ()=>{
 window.addEventListener('orientationchange', ()=>{
   setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 400);
   setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 900);
-  setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 2000);
 });
 
 // ── visibilitychange: re-render saat tab/app kembali aktif (penting di HP)
 document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState === 'visible' && liveEntries.length > 0){
+  if(document.visibilityState === 'visible'){
     setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 300);
   }
 });
@@ -2793,12 +2788,12 @@ if(document.readyState === 'loading'){
 (function(){
   if(!('IntersectionObserver' in window)) return;
   const targets = [
-    {id:'cmp-card',     fn:()=>{ try{renderIkpComparison();}catch(e){} }},
-    {id:'target-bars',  fn:()=>{ try{renderTargetSampel();}catch(e){} }},
+    {id:'cmp-card',          fn:()=>{ try{renderIkpComparison();}catch(e){} }},
+    {id:'target-bars',       fn:()=>{ try{renderTargetSampel();}catch(e){} }},
     {id:'heatmap-container', fn:()=>{ try{renderHeatmap();}catch(e){} }},
-    {id:'radar-canvas', fn:()=>{ try{renderRadar();}catch(e){} }},
-    {id:'saran-list',   fn:()=>{ try{renderSaran();}catch(e){} }},
-    {id:'topik-grid',   fn:()=>{ try{renderSaran();}catch(e){} }},
+    {id:'radar-canvas',      fn:()=>{ try{renderRadar();}catch(e){} }},
+    {id:'saran-list',        fn:()=>{ try{renderSaran();}catch(e){} }},
+    {id:'topik-grid',        fn:()=>{ try{renderSaran();}catch(e){} }},
   ];
   targets.forEach(({id, fn})=>{
     const el = document.getElementById(id);
@@ -2806,13 +2801,29 @@ if(document.readyState === 'loading'){
     let rendered = false;
     const obs = new IntersectionObserver((entries)=>{
       entries.forEach(entry=>{
-        if(entry.isIntersecting && !rendered && liveEntries.length > 0){
-          rendered = true;
-          fn();
-          obs.disconnect();
+        if(entry.isIntersecting && !rendered){
+          // Kalau data belum ada, coba lagi tiap 500ms sampai berhasil
+          const tryRender = ()=>{
+            fn();
+            rendered = true;
+            obs.disconnect();
+          };
+          if(liveEntries.length > 0){
+            tryRender();
+          } else {
+            // Polling sampai data masuk, max 30 detik
+            let attempts = 0;
+            const poll = setInterval(()=>{
+              attempts++;
+              if(liveEntries.length > 0 || attempts > 60){
+                clearInterval(poll);
+                if(!rendered) tryRender();
+              }
+            }, 500);
+          }
         }
       });
-    }, {threshold: 0.01, rootMargin: '200px'});
+    }, {threshold: 0.01, rootMargin: '300px 0px'});
     obs.observe(el);
   });
 })();
