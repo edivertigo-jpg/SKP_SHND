@@ -297,7 +297,12 @@ tr:last-child td{border-bottom:none;}
 
 @media(min-width:480px){.m4{grid-template-columns:repeat(4,1fr);}}
 
-/* CSS duplikat dihapus — definisi lengkap ada di bawah */
+/* Pastikan semua fitur tampil di HP */
+.topik-grid{display:flex;flex-wrap:wrap;min-height:10px;}
+.heatmap-wrap{display:block;min-height:10px;}
+.radar-wrap{display:flex;flex-direction:column;align-items:center;}
+.ikp-cmp{display:grid;}
+.target-summary{display:grid;}
 
 /* ── MOBILE FIXES ── */
 @media(max-width:600px){
@@ -1169,18 +1174,22 @@ async function syncFromSheet() {
     buildFilterOptions();
     renderAll();
     dbg('renderAll after sync done');
-    // Paksa scroll event agar IntersectionObserver terpicu di HP
-    setTimeout(()=>{
-      window.dispatchEvent(new Event('scroll'));
-      window.dispatchEvent(new Event('resize'));
-    }, 150);
     // Setelah data masuk: paksa render ulang fitur baru dengan delay berlapis
-    // Ini memastikan fitur muncul di HP, GitHub Pages, maupun koneksi lambat
-    [300, 800, 1500, 3000, 5000].forEach(ms => setTimeout(()=>{
+    // Delay lebih panjang untuk HP lambat dan GitHub Pages
+    [200, 600, 1200, 2500, 4000, 7000].forEach(ms => setTimeout(()=>{
       try{ renderTren(); } catch(e){}
       renderNewFeatures();
       dbg('retry render @'+ms+'ms done');
     }, ms));
+    // Trigger render saat user scroll (satu kali setelah data ada)
+    const _scrollRender = ()=>{
+      try{ renderTren(); } catch(e){}
+      renderNewFeatures();
+      window.removeEventListener('scroll', _scrollRender, true);
+      window.removeEventListener('touchmove', _scrollRender, true);
+    };
+    window.addEventListener('scroll', _scrollRender, {once:true, passive:true, capture:true});
+    window.addEventListener('touchmove', _scrollRender, {once:true, passive:true, capture:true});
   } catch(err) {
     cleanup();
     if (err.name === 'AbortError') {
@@ -1453,16 +1462,25 @@ function renderRadar(){
   const sel    = document.getElementById('radar-unit-sel');
   const canvas = document.getElementById('radar-canvas');
   const empty  = document.getElementById('radar-empty');
-  // Pastikan canvas punya ukuran fisik yang benar di mobile
-  const parentW = canvas.parentElement ? canvas.parentElement.clientWidth : 0;
-  const mainW   = document.querySelector('.main') ? document.querySelector('.main').clientWidth : 0;
-  const screenW = window.innerWidth || 360;
-  const cw = Math.min(Math.max(parentW || mainW || screenW - 32, 240), 320);
+  // Ukuran canvas — gunakan getBoundingClientRect() yang akurat di HP
+  let cw = 0;
+  if(canvas.parentElement) cw = canvas.parentElement.getBoundingClientRect().width;
+  if(!cw || cw < 100){
+    const main = document.querySelector('.main');
+    if(main) cw = main.getBoundingClientRect().width - 32;
+  }
+  if(!cw || cw < 100) cw = window.innerWidth ? window.innerWidth - 32 : 320;
+  cw = Math.min(Math.max(Math.round(cw), 240), 360);
+  // Kalau canvas belum punya ukuran, jadwalkan ulang
+  if(cw < 100){
+    requestAnimationFrame(()=>{ try{ renderRadar(); } catch(e){} });
+    return;
+  }
   const dpr = window.devicePixelRatio || 1;
-  canvas.width  = Math.round(cw * dpr);
-  canvas.height = Math.round(cw * 0.94 * dpr);
   canvas.style.width  = cw + 'px';
   canvas.style.height = Math.round(cw * 0.94) + 'px';
+  canvas.width  = Math.round(cw * dpr);
+  canvas.height = Math.round(cw * 0.94 * dpr);
   const unitMap = buildUnitUnsurMap();
 
   // Update options
@@ -1491,12 +1509,11 @@ function renderRadar(){
   const labels  = ['Persyaratan','Prosedur','Waktu','Biaya','Produk','Kompetensi','Perilaku','Sarana','Aduan'];
   const N       = labels.length;
   const ctx     = canvas.getContext('2d');
-  // FIX: Gunakan cw yang sudah dihitung di atas, BUKAN canvas.offsetWidth (bisa 0 di HP)
   const W       = cw;
   const H       = Math.round(cw * 0.94);
-  canvas.width  = W;
-  canvas.height = H;
-  ctx.clearRect(0,0,W,H);
+  // Scale context sesuai dpr (canvas sudah di-set di atas dengan dpr)
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
 
   const cx = W/2, cy = H/2 - 10;
   const R  = Math.min(cx,cy) - 50;
@@ -1659,14 +1676,18 @@ function renderAll(){
   try{ renderRespTable(); } catch(e){ console.error('renderRespTable',e); }
 
   // Render semua fitur setelah layout settle — pakai rAF + setTimeout berlapis
-  // supaya bekerja di HP lambat maupun browser yang cache agresif (GitHub Pages)
-  requestAnimationFrame(()=>{
+  // Penting di HP: layout belum selesai saat script pertama jalan
+  const _doRender = ()=>{
     try{ renderTren(); } catch(e){}
     renderNewFeatures();
-    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 300);
-    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 800);
-    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 1800);
-    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 3500);
+  };
+  requestAnimationFrame(()=>{
+    _doRender();
+    setTimeout(_doRender, 300);
+    setTimeout(_doRender, 800);
+    setTimeout(_doRender, 1800);
+    setTimeout(_doRender, 3500);  // HP sangat lambat / koneksi 3G
+    setTimeout(_doRender, 6000);  // Last resort
   });
 }
 
@@ -2729,26 +2750,25 @@ function exportToExcel(){
 }
 
 // ── Re-render tren chart on resize
-let _resizeTimer;
-window.addEventListener('resize', ()=>{
-  clearTimeout(_resizeTimer);
-  _resizeTimer = setTimeout(()=>{
-    try{ renderTren(); } catch(e){}
-    renderNewFeatures();
-  }, 150);
-});
-// Juga handle orientationchange (HP rotate)
-window.addEventListener('orientationchange', ()=>{
-  setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 400);
-  setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 900);
-});
+// Resize & orientationchange dihandle oleh _onResize di bawah
 
 // ── visibilitychange: re-render saat tab/app kembali aktif (penting di HP)
 document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState === 'visible'){
+  if(document.visibilityState === 'visible' && liveEntries.length > 0){
+    // HP sering tidak render ulang canvas saat kembali dari background
     setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 300);
+    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 900);
   }
 });
+
+// Resize & orientationchange — pastikan canvas ukurannya benar setelah rotasi
+const _onResize = ()=>{
+  if(liveEntries.length > 0){
+    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 200);
+  }
+};
+window.addEventListener('resize', _onResize, {passive:true});
+window.addEventListener('orientationchange', ()=>{ setTimeout(_onResize, 400); setTimeout(_onResize, 900); });
 
 // ── DEBUG HELPER (aktif kalau URL ada ?debug)
 const _isDebug = location.search.includes('debug');
@@ -2783,8 +2803,8 @@ if(document.readyState === 'loading'){
   setTimeout(_init, 0);
 }
 
-// ── IntersectionObserver: re-render fitur baru saat pertama kali masuk viewport
-// Ini memastikan fitur muncul walau render awal terjadi sebelum data masuk
+// ── IntersectionObserver: re-render saat elemen masuk viewport
+// Bekerja di HP: tidak langsung disconnect, retry sampai data ada
 (function(){
   if(!('IntersectionObserver' in window)) return;
   const targets = [
@@ -2799,31 +2819,37 @@ if(document.readyState === 'loading'){
     const el = document.getElementById(id);
     if(!el) return;
     let rendered = false;
+    let retryTimer = null;
+    const tryRender = ()=>{
+      if(liveEntries.length > 0){
+        fn();
+        rendered = true;
+        if(retryTimer) clearInterval(retryTimer);
+      }
+    };
     const obs = new IntersectionObserver((entries)=>{
       entries.forEach(entry=>{
-        if(entry.isIntersecting && !rendered){
-          // Kalau data belum ada, coba lagi tiap 500ms sampai berhasil
-          const tryRender = ()=>{
-            fn();
-            rendered = true;
-            obs.disconnect();
-          };
-          if(liveEntries.length > 0){
-            tryRender();
+        if(entry.isIntersecting){
+          tryRender();
+          if(!rendered){
+            // Data belum ada — polling setiap 500ms sampai berhasil
+            if(!retryTimer){
+              retryTimer = setInterval(()=>{
+                if(liveEntries.length > 0){
+                  tryRender();
+                  clearInterval(retryTimer);
+                  obs.disconnect();
+                }
+              }, 500);
+              // Stop polling setelah 30 detik
+              setTimeout(()=>{ if(retryTimer){ clearInterval(retryTimer); } }, 30000);
+            }
           } else {
-            // Polling sampai data masuk, max 30 detik
-            let attempts = 0;
-            const poll = setInterval(()=>{
-              attempts++;
-              if(liveEntries.length > 0 || attempts > 60){
-                clearInterval(poll);
-                if(!rendered) tryRender();
-              }
-            }, 500);
+            obs.disconnect();
           }
         }
       });
-    }, {threshold: 0.01, rootMargin: '300px 0px'});
+    }, {threshold: 0.05});
     obs.observe(el);
   });
 })();
