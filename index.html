@@ -283,8 +283,8 @@ tr:last-child td{border-bottom:none;}
 .sent-empty{text-align:center;font-size:12px;color:var(--g3);padding:20px 0;}
 
 /* TREN CHART */
-.tren-wrap{position:relative;width:100%;height:180px;margin-top:6px;}
-.tren-canvas{display:block;width:100%;height:100%;}
+.tren-wrap{position:relative;width:100%;height:200px;margin-top:6px;}
+.tren-canvas{display:block;width:100%;height:100%;min-height:200px;}
 .tren-empty{display:flex;align-items:center;justify-content:center;height:120px;font-size:12px;color:var(--g3);}
 .tren-tooltip{position:absolute;background:var(--g9);color:#fff;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;pointer-events:none;white-space:nowrap;transform:translate(-50%,-110%);transition:opacity .15s;opacity:0;z-index:10;}
 .tren-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;}
@@ -745,6 +745,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzs3GMOQu44zWgLilCaqECf
       <select class="saran-unit-sel" id="saran-unit-filter" onchange="renderSaranList()">
         <option value="">Semua Unit</option>
       </select>
+      <div id="saran-filter-badge" style="display:none;font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-l);padding:3px 10px;border-radius:20px;white-space:nowrap;"></div>
     </div>
     <div class="sent-tabs">
       <button class="sent-tab active" onclick="setSentTab('semua',this)">Semua</button>
@@ -842,6 +843,9 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzs3GMOQu44zWgLilCaqECf
 
 <div class="toast" id="toast"></div>
 
+<!-- DEBUG BAR: muncul hanya kalau URL ada ?debug -->
+<div id="debug-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(0,0,0,.85);color:#0f0;font-size:10px;font-family:monospace;padding:6px 10px;max-height:120px;overflow-y:auto;"></div>
+
 <script>
 // ═══════════════════════════════════════════════
 // SEED DATA — Maret 2026, sumber: file Excel asli (378 responden valid)
@@ -913,7 +917,17 @@ function matchTarget(unitName){
 }
 
 // ── Live entries dari Google Sheets
-let liveEntries = [];
+// Load dari localStorage dulu sbg cache (supaya langsung tampil di HP)
+let liveEntries = (function(){
+  try {
+    const cached = localStorage.getItem('skm_live');
+    if(cached){
+      const parsed = JSON.parse(cached);
+      if(Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch(e){}
+  return [];
+})();
 // ── Filter state
 let activeFilter = {bulan:'', unit:'', semester:''};
 // ── Pagination
@@ -1153,14 +1167,19 @@ async function syncFromSheet() {
     if (!json.ok) throw new Error(json.error || 'Server error');
 
     liveEntries = json.rows || [];
+    // Simpan ke localStorage sbg cache untuk load berikutnya
+    try { localStorage.setItem('skm_live', JSON.stringify(liveEntries)); } catch(e){}
     setSyncStatus('ok', `✓ Tersinkron — ${liveEntries.length} responden dari Sheets`);
+    dbg('sync OK, rows='+liveEntries.length);
     buildFilterOptions();
     renderAll();
+    dbg('renderAll after sync done');
     // Setelah data masuk: paksa render ulang fitur baru dengan delay berlapis
     // Ini memastikan fitur muncul di HP, GitHub Pages, maupun koneksi lambat
     [200, 600, 1200, 2500].forEach(ms => setTimeout(()=>{
       try{ renderTren(); } catch(e){}
       renderNewFeatures();
+      dbg('retry render @'+ms+'ms done');
     }, ms));
   } catch(err) {
     cleanup();
@@ -1608,6 +1627,11 @@ function renderTopikGrid(saranList){
     html += `<div class="topik-chip${_topikFilter===t.id?' active':''}" onclick="setTopikFilter('${t.id}',this)">
       ${t.icon} ${t.label} <span class="topik-n">${counts[t.id]}</span></div>`;
   });
+  // Tampilkan topik Lainnya jika ada
+  if(counts['lainnya']){
+    html += `<div class="topik-chip${_topikFilter==='lainnya'?' active':''}" onclick="setTopikFilter('lainnya',this)">
+      📌 Lainnya <span class="topik-n">${counts['lainnya']}</span></div>`;
+  }
   wrap.innerHTML = html;
 }
 
@@ -1620,11 +1644,12 @@ function setTopikFilter(tid, el){
 
 function renderNewFeatures(){
   // Render semua fitur baru — dipanggil berulang kali sampai berhasil
-  try{ renderIkpComparison(); } catch(e){}
-  try{ renderTargetSampel(); } catch(e){}
-  try{ renderHeatmap(); } catch(e){}
-  try{ renderRadar(); } catch(e){}
-  try{ renderSaran(); } catch(e){}
+  dbg('renderNewFeatures live='+liveEntries.length+' filtered='+getFiltered().length);
+  try{ renderIkpComparison(); } catch(e){ dbg('ERR cmp:'+e.message); }
+  try{ renderTargetSampel(); } catch(e){ dbg('ERR target:'+e.message); }
+  try{ renderHeatmap(); } catch(e){ dbg('ERR heatmap:'+e.message); }
+  try{ renderRadar(); } catch(e){ dbg('ERR radar:'+e.message); }
+  try{ renderSaran(); } catch(e){ dbg('ERR saran:'+e.message); }
 }
 
 function renderAll(){
@@ -1683,6 +1708,7 @@ function renderTren(){
   const empty  = document.getElementById('tren-empty');
   const tooltip = document.getElementById('tren-tooltip');
 
+  if(!badge || !canvas || !empty) return;
   badge.textContent = data.length + ' bulan';
 
   if(data.length < 2){
@@ -1693,33 +1719,55 @@ function renderTren(){
   canvas.style.display = 'block';
   empty.style.display = 'none';
 
-  // Setup canvas resolution
+  // Pastikan canvas sudah terlayout — kalau belum, jadwalkan ulang
+  const wrapW = canvas.parentElement ? canvas.parentElement.getBoundingClientRect().width : 0;
+  if(wrapW < 100){
+    requestAnimationFrame(()=>{ try{ renderTren(); } catch(e){} });
+    return;
+  }
+
+  // Setup canvas resolution — pakai offsetWidth/getBoundingClientRect agar akurat
   const wrap = canvas.parentElement;
   const mainEl = document.querySelector('.main');
-  const W = Math.max(
-    wrap.clientWidth > 0 ? wrap.clientWidth : 0,
-    mainEl ? mainEl.clientWidth - 32 : 0,
-    window.innerWidth > 0 ? window.innerWidth - 60 : 300
-  ) || 340;
-  const H = 180;
-  canvas.width  = W * devicePixelRatio;
-  canvas.height = H * devicePixelRatio;
+  // Paksa reflow dulu agar layout sudah ter-hitung
+  let W = canvas.getBoundingClientRect().width;
+  if(!W || W < 100){
+    W = wrap.getBoundingClientRect().width || wrap.offsetWidth;
+  }
+  if(!W || W < 100){
+    W = mainEl ? (mainEl.getBoundingClientRect().width || mainEl.offsetWidth) - 32 : 0;
+  }
+  if(!W || W < 100){
+    W = window.innerWidth > 0 ? window.innerWidth - 60 : 340;
+  }
+  W = Math.max(W, 280);
+  const H = 200;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
   canvas.style.width  = W + 'px';
   canvas.style.height = H + 'px';
 
   const ctx = canvas.getContext('2d');
-  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.scale(dpr, dpr);
 
-  const PAD = {top:16, right:16, bottom:36, left:40};
+  const PAD = {top:24, right:24, bottom:40, left:44};
   const cW = W - PAD.left - PAD.right;
   const cH = H - PAD.top  - PAD.bottom;
 
   // Y range: min/max IKP dengan sedikit padding
   const vals = data.map(d=>d.ikp);
-  const minV = Math.max(0,  Math.min(...vals) - 5);
-  const maxV = Math.min(100, Math.max(...vals) + 5);
+  const rawMin = Math.min(...vals);
+  const rawMax = Math.max(...vals);
+  // Pastikan range minimal 4 poin agar garis tidak terlalu steep
+  const rangePad = Math.max(3, (rawMax - rawMin) * 0.3);
+  const minV = Math.max(0,   rawMin - rangePad);
+  const maxV = Math.min(100, rawMax + rangePad);
   const yScale = v => PAD.top + cH - ((v - minV) / (maxV - minV)) * cH;
-  const xScale = i => PAD.left + (i / (data.length-1)) * cW;
+  // xScale: kalau hanya 1 titik, taruh di tengah
+  const xScale = i => data.length <= 1
+    ? PAD.left + cW / 2
+    : PAD.left + (i / (data.length - 1)) * cW;
 
   // Clear
   ctx.clearRect(0, 0, W, H);
@@ -1778,23 +1826,33 @@ function renderTren(){
   data.forEach((d,i)=>{
     const x = xScale(i), y = yScale(d.ikp);
     const m = mutu(d.ikp);
+    // dot shadow
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(26,79,160,0.12)';
+    ctx.fill();
     // dot
     ctx.beginPath();
-    ctx.arc(x, y, 4, 0, Math.PI*2);
+    ctx.arc(x, y, 4.5, 0, Math.PI*2);
     ctx.fillStyle = m.c;
     ctx.fill();
     ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 2;
     ctx.stroke();
-    // X label (bulan)
+    // X label (bulan) — pastikan tidak terpotong
     ctx.fillStyle = '#6b7a99';
-    ctx.font = '9px Plus Jakarta Sans, system-ui, sans-serif';
+    ctx.font = 'bold 9px Plus Jakarta Sans, system-ui, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(d.label, x, H-PAD.bottom+13);
-    // IKP label above dot
-    ctx.fillStyle = '#374162';
+    ctx.fillText(d.label, x, H - PAD.bottom + 14);
+    // Jumlah responden
+    ctx.fillStyle = '#bec5d8';
     ctx.font = '8px Plus Jakarta Sans, system-ui, sans-serif';
-    ctx.fillText(d.ikp.toFixed(1).replace('.',','), x, y-8);
+    ctx.fillText('n='+d.n, x, H - PAD.bottom + 24);
+    // IKP label above dot — pastikan tidak keluar area atas
+    const lblY = Math.max(PAD.top + 12, y - 9);
+    ctx.fillStyle = '#1a4fa0';
+    ctx.font = 'bold 9px Plus Jakarta Sans, system-ui, sans-serif';
+    ctx.fillText(d.ikp.toFixed(1).replace('.',','), x, lblY);
   });
 
   // Tooltip on hover
@@ -2189,11 +2247,13 @@ function renderSaran(){
     }).join('');
   }
 
-  // Update unit filter dropdown in saran
+  // Update unit filter dropdown in saran — sinkronkan dengan filter global
   const unitSel = document.getElementById('saran-unit-filter');
   if(unitSel){
     const units = [...new Set(liveEntFilt.map(e=>e.unit).filter(Boolean))].sort();
-    const cur = unitSel.value;
+    // Jika ada filter unit global, paksa saran-unit-filter mengikutinya
+    const globalUnit = activeFilter.unit || '';
+    const cur = globalUnit || unitSel.value;
     unitSel.innerHTML = '<option value="">Semua Unit</option>';
     units.forEach(u=>{
       const o = document.createElement('option');
@@ -2201,6 +2261,23 @@ function renderSaran(){
       if(u===cur) o.selected=true;
       unitSel.appendChild(o);
     });
+    // Disable dropdown jika filter global sudah memilih unit (redundant)
+    unitSel.disabled = !!globalUnit;
+    unitSel.style.opacity = globalUnit ? '0.5' : '1';
+  }
+  // Tampilkan badge filter aktif dari filter global
+  const filterBadge = document.getElementById('saran-filter-badge');
+  if(filterBadge){
+    const badgeParts = [];
+    if(activeFilter.semester) badgeParts.push(getSemesterLabel(activeFilter.semester));
+    if(activeFilter.bulan) badgeParts.push(getBulanLabel(activeFilter.bulan));
+    if(activeFilter.unit) badgeParts.push('Unit: '+activeFilter.unit);
+    if(badgeParts.length){
+      filterBadge.textContent = '🔍 Filter: ' + badgeParts.join(' · ');
+      filterBadge.style.display = '';
+    } else {
+      filterBadge.style.display = 'none';
+    }
   }
 
   // Topik
@@ -2675,13 +2752,29 @@ document.addEventListener('visibilitychange', ()=>{
   }
 });
 
+// ── DEBUG HELPER (aktif kalau URL ada ?debug)
+const _isDebug = location.search.includes('debug');
+const _dbBar = ()=>document.getElementById('debug-bar');
+function dbg(msg){
+  if(!_isDebug) return;
+  const bar = _dbBar();
+  if(!bar) return;
+  bar.style.display='block';
+  const line = document.createElement('div');
+  line.textContent = '['+new Date().toLocaleTimeString('id')+'] '+msg;
+  bar.appendChild(line);
+  bar.scrollTop = bar.scrollHeight;
+}
+
 // ── INIT — tunggu DOM siap lalu render
 // Pakai satu entry point yang benar — cegah double call
 let _inited = false;
 function _init(){
   if(_inited) return;
   _inited = true;
+  dbg('INIT start. liveEntries cache='+liveEntries.length);
   renderAll();
+  dbg('renderAll done');
   syncFromSheet();
 }
 
