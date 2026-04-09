@@ -2,6 +2,9 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#1a4fa0">
   <meta name="description" content="Dashboard SKM RSU Surya Husadha Nusa Dua">
@@ -13,6 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <title>Survei Kepuasan Pasien — RSU Surya Husadha Nusa Dua</title>
+  <!-- v1775777564 -->
 <style>
 :root{
   --blue:#1a4fa0;--blue-d:#0f2f6a;--blue-l:#e8f0fb;--blue-m:#4a82d0;
@@ -2754,7 +2758,7 @@ function exportToExcel(){
 
 // ── visibilitychange: re-render saat tab/app kembali aktif (penting di HP)
 document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState === 'visible' && liveEntries.length > 0){
+  if(document.visibilityState === 'visible'){
     // HP sering tidak render ulang canvas saat kembali dari background
     setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 300);
     setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 900);
@@ -2763,9 +2767,7 @@ document.addEventListener('visibilitychange', ()=>{
 
 // Resize & orientationchange — pastikan canvas ukurannya benar setelah rotasi
 const _onResize = ()=>{
-  if(liveEntries.length > 0){
-    setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 200);
-  }
+  setTimeout(()=>{ try{ renderTren(); } catch(e){} renderNewFeatures(); }, 200);
 };
 window.addEventListener('resize', _onResize, {passive:true});
 window.addEventListener('orientationchange', ()=>{ setTimeout(_onResize, 400); setTimeout(_onResize, 900); });
@@ -2793,6 +2795,10 @@ function _init(){
   dbg('INIT start. liveEntries cache='+liveEntries.length);
   renderAll();
   dbg('renderAll done');
+  // Extra render untuk HP lambat / GitHub Pages
+  setTimeout(()=>{ try{ renderNewFeatures(); } catch(e){} }, 500);
+  setTimeout(()=>{ try{ renderNewFeatures(); renderTren(); } catch(e){} }, 1500);
+  setTimeout(()=>{ try{ renderNewFeatures(); renderTren(); } catch(e){} }, 3000);
   syncFromSheet();
 }
 
@@ -2821,7 +2827,8 @@ if(document.readyState === 'loading'){
     let rendered = false;
     let retryTimer = null;
     const tryRender = ()=>{
-      if(liveEntries.length > 0){
+      const hasData = liveEntries.length > 0 || getFiltered().length > 0;
+      if(hasData){
         fn();
         rendered = true;
         if(retryTimer) clearInterval(retryTimer);
@@ -2835,7 +2842,7 @@ if(document.readyState === 'loading'){
             // Data belum ada — polling setiap 500ms sampai berhasil
             if(!retryTimer){
               retryTimer = setInterval(()=>{
-                if(liveEntries.length > 0){
+                if(liveEntries.length > 0 || getFiltered().length > 0){
                   tryRender();
                   clearInterval(retryTimer);
                   obs.disconnect();
