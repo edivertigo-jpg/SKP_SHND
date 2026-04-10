@@ -1,40 +1,45 @@
-const CACHE = 'skm-rsu-surya-v1';
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
-  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap'
-];
+// SKM RSU Surya Husadha — Service Worker
+// v1775777973 — network-first agar selalu pakai versi terbaru
+const CACHE_NAME = 'skm-rsu-v1775777973';
 
+// Install: bersihkan semua cache lama
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS.filter(a => !a.startsWith('http'))))
-  );
-  self.skipWaiting();
+  self.skipWaiting(); // Aktifkan SW baru langsung tanpa tunggu tab ditutup
 });
 
+// Activate: hapus semua cache lama
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
+      Promise.all(keys.map(k => {
+        console.log('[SW] Deleting old cache:', k);
+        return caches.delete(k); // Hapus SEMUA cache lama
+      }))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
+// Fetch: NETWORK FIRST — selalu coba ambil dari server dulu
+// Hanya pakai cache kalau offline
 self.addEventListener('fetch', e => {
+  // Skip non-GET dan cross-origin requests
+  if(e.request.method !== 'GET') return;
+  if(!e.request.url.startsWith(self.location.origin)) return;
+
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(res => {
-        if (res && res.status === 200 && res.type === 'basic') {
+    fetch(e.request, { cache: 'no-cache' })
+      .then(res => {
+        // Kalau berhasil dari network, simpan ke cache (untuk offline)
+        if(res && res.status === 200) {
           const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
+          caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
         }
         return res;
-      }).catch(() => caches.match('./index.html'));
-    })
+      })
+      .catch(() => {
+        // Offline: coba dari cache
+        return caches.match(e.request)
+          .then(cached => cached || caches.match('./index.html'));
+      })
   );
 });
