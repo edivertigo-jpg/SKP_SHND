@@ -889,22 +889,24 @@ const SQ_META = [
 // targetS = target 6 bulan/semester (kolom D, dibulatkan)
 // targetB = target per bulan (kolom E)
 const TARGET_SAMPEL = [
-  {unit:'Farmasi Ranap + rajal', targetS:381, targetB:64, aliases:['Farmasi Rawat Inap','Farmasi Rawat Jalan','Farmasi Ranap','Farmasi Rajal']},
-  {unit:'FO',                    targetS:382, targetB:64, aliases:['Pendaftaran','FO','Front Office']},
-  {unit:'Gizi',                  targetS:325, targetB:54, aliases:['Gizi']},
-  {unit:'HD',                    targetS:345, targetB:58, aliases:['Unit Dialisis','HD','Hemodialisa']},
-  {unit:'IGD',                   targetS:371, targetB:62, aliases:['IGD']},
-  {unit:'Intensive',             targetS:57,  targetB:10, aliases:['ICU/HCU','Intensive','ICU','HCU']},
-  {unit:'Kasir',                 targetS:382, targetB:64, aliases:['Kasir']},
-  {unit:'Lab',                   targetS:369, targetB:62, aliases:['Laboratorium','Lab']},
-  {unit:'LT1',                   targetS:313, targetB:52, aliases:['Rawat Inap Lantai 1','LT1']},
-  {unit:'LT2',                   targetS:202, targetB:34, aliases:['Rawat Inap Lantai 2','LT2']},
-  {unit:'LT3',                   targetS:163, targetB:27, aliases:['Rawat Inap Lantai 3','LT3']},
-  {unit:'OK',                    targetS:89,  targetB:15, aliases:['Kamar Operasi','OK','Kamar OK']},
-  {unit:'Poliklinik',            targetS:381, targetB:64, aliases:['Rawat Jalan/Poliklinik','Poliklinik']},
-  {unit:'R Bayi',                targetS:225, targetB:38, aliases:['Ruang Bayi','R Bayi','Ruang Bersalin']},
-  {unit:'Ronsen',                targetS:352, targetB:59, aliases:['Radiologi','Ronsen','Rontgen']},
-  {unit:'VK',                    targetS:285, targetB:48, aliases:['Ruang Bersalin','VK','Kamar Bersalin']},
+  {unit:'IGD',         targetS:371, targetB:62, aliases:['IGD']},
+  {unit:'ICU/HCU',     targetS:57,  targetB:10, aliases:['ICU/HCU','Intensive','ICU','HCU','PICU','ICU/PICU']},
+  {unit:'Kamar Operasi',targetS:89, targetB:15, aliases:['Kamar Operasi','OK','Kamar OK','Ruang Operasi']},
+  {unit:'Ruang Bersalin',targetS:285,targetB:48,aliases:['Ruang Bersalin','VK','Kamar Bersalin']},
+  {unit:'Rawat Jalan/Poliklinik',targetS:381,targetB:64,aliases:['Rawat Jalan/Poliklinik','Rawat Jalan /Poliklinik','Poliklinik']},
+  {unit:'Unit Dialisis',targetS:345,targetB:58, aliases:['Unit Dialisis','HD','Hemodialisa','Hemodialisis','Ruang Hemodialisa']},
+  {unit:'Rawat Inap Lantai 1',targetS:313,targetB:52,aliases:['Rawat Inap Lantai 1','LT1','Ruang Rawat Inap Basement','Basement']},
+  {unit:'Rawat Inap Lantai 2',targetS:202,targetB:34,aliases:['Rawat Inap Lantai 2','LT2']},
+  {unit:'Rawat Inap Lantai 3',targetS:163,targetB:27,aliases:['Rawat Inap Lantai 3','LT3']},
+  {unit:'Ruang Bayi',  targetS:225, targetB:38, aliases:['Ruang Bayi','R Bayi']},
+  {unit:'Laboratorium',targetS:369, targetB:62, aliases:['Laboratorium','Lab','Unit Laboratorium']},
+  {unit:'Radiologi',   targetS:352, targetB:59, aliases:['Radiologi','Ronsen','Rontgen','Unit Radiologi']},
+  {unit:'Farmasi Rawat Jalan',targetS:190,targetB:32,aliases:['Farmasi Rawat Jalan','Farmasi Rajal','Instalasi Farmasi Rawat Jalan']},
+  {unit:'Farmasi Rawat Inap', targetS:190,targetB:32,aliases:['Farmasi Rawat Inap','Farmasi Ranap','Instalasi Farmasi Rawat Inap','Instalasi Farmasi Rawat inap']},
+  {unit:'Pendaftaran', targetS:382, targetB:64, aliases:['Pendaftaran','FO','Front Office','Pendaftaran /Front Office']},
+  {unit:'Gizi',        targetS:325, targetB:54, aliases:['Gizi','Unit Gizi']},
+  {unit:'Rekam Medis', targetS:382, targetB:64, aliases:['Rekam Medis','Unit Rekam Medis']},
+  {unit:'Kasir',       targetS:382, targetB:64, aliases:['Kasir']},
 ];
 
 function matchTarget(unitName){
@@ -1014,7 +1016,15 @@ function getFiltered(){
     const bk = getBulanKey(e.timestamp);
     const bMatch = !activeFilter.bulan    || bk === activeFilter.bulan;
     const sMatch = !activeFilter.semester || getSemesterOfKey(bk) === activeFilter.semester;
-    const uMatch = !activeFilter.unit     || (e.unit||'') === activeFilter.unit;
+    const uMatch = !activeFilter.unit     || (() => {
+      const eu = (e.unit||'').toLowerCase().trim();
+      const fu = activeFilter.unit.toLowerCase().trim();
+      if(eu === fu) return true;
+      // cek alias via TARGET_SAMPEL
+      const tgt = TARGET_SAMPEL.find(t=> t.unit.toLowerCase()===fu);
+      if(tgt) return tgt.aliases.some(a=> eu===a.toLowerCase().trim() || eu.includes(a.toLowerCase().trim()) || a.toLowerCase().trim().includes(eu));
+      return false;
+    })();
     return bMatch && sMatch && uMatch;
   });
 }
@@ -1382,8 +1392,25 @@ function renderTargetSampel(){
     });
     const tgt = t[targetKey] || t.targetB;
     const pct = tgt > 0 ? Math.min(count/tgt, 1) : 0;
-    return {...t, count, tgt, pct};
+    return {...t, count, tgt, pct, noTarget: false};
   }).sort((a,b)=>a.pct-b.pct);
+
+  // Unit tanpa target sampel — tampilkan dengan count saja
+  const NO_TARGET_UNITS = [
+    {unit:'Petugas Parkir',    aliases:['Petugas Parkir','Petugas parkir','Parkir']},
+    {unit:'Petugas Kebersihan',aliases:['Petugas Kebersihan','Petugas kebersihan','Cleaning Service']},
+    {unit:'Satpam',            aliases:['Satpam','Keamanan','Security']},
+  ];
+  const noTargetRows = NO_TARGET_UNITS.map(t=>{
+    let count = 0;
+    Object.entries(unitCounts).forEach(([u,n])=>{
+      if(t.aliases.some(a=>
+        u.toLowerCase().includes(a.toLowerCase()) ||
+        a.toLowerCase().includes(u.toLowerCase())
+      )) count += n;
+    });
+    return {...t, count, tgt: 0, pct: 0, noTarget: true};
+  });
 
   const ok     = rows.filter(r=>r.pct>=1).length;
   const warn   = rows.filter(r=>r.pct>=0.5&&r.pct<1).length;
@@ -1393,12 +1420,21 @@ function renderTargetSampel(){
   document.getElementById('ts-warn').textContent   = warn;
   document.getElementById('ts-danger').textContent = danger;
 
+  const allRows = [...rows, ...noTargetRows];
+
   const wrap = document.getElementById('target-bars');
-  wrap.innerHTML = rows.map(r=>{
+  wrap.innerHTML = allRows.map(r=>{
+    if(r.noTarget){
+      const dispVal = r.count > 0 ? r.count : '–';
+      return `<div class="target-row">
+        <div class="target-lbl" title="${r.unit}">${r.unit}</div>
+        <div class="target-track" style="background:var(--g1);"></div>
+        <div class="target-val" style="color:var(--g5);">${dispVal}</div>
+      </div>`;
+    }
     const pctPx = (r.pct*100).toFixed(1);
     const cls   = r.pct>=1 ? 'target-ok' : r.pct>=0.5 ? 'target-warn' : 'target-danger';
     const color = r.pct>=1 ? '#1a8a4a'   : r.pct>=0.5 ? '#ef9f27'     : '#c93535';
-    const pctDisp = r.pct>=1 ? '✓' : (r.pct*100).toFixed(0)+'%';
     return `<div class="target-row">
       <div class="target-lbl" title="${r.unit}">${r.unit}</div>
       <div class="target-track">
