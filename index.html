@@ -1043,11 +1043,34 @@ function buildFilterOptions(){
     bSel.appendChild(opt);
   });
 
-  // Unit dropdown
+  // Unit dropdown — pakai daftar tetap sesuai form survei (bukan dari data mentah)
+  const UNIT_STANDAR = [
+    'IGD',
+    'ICU/HCU',
+    'Kamar Operasi',
+    'Ruang Bersalin',
+    'Rawat Jalan/Poliklinik',
+    'Unit Dialisis',
+    'Rawat Inap Lantai 1',
+    'Rawat Inap Lantai 2',
+    'Rawat Inap Lantai 3',
+    'Ruang Bayi',
+    'Laboratorium',
+    'Radiologi',
+    'Farmasi Rawat Jalan',
+    'Farmasi Rawat Inap',
+    'Pendaftaran',
+    'Gizi',
+    'Rekam Medis',
+    'Kasir',
+    'Petugas Parkir',
+    'Petugas Kebersihan',
+    'Satpam',
+  ];
   const uSel = document.getElementById('f-unit-filter');
   const uCur = uSel.value;
   uSel.innerHTML = '<option value="">Semua Unit</option>';
-  [...unitSet].sort().forEach(u=>{
+  UNIT_STANDAR.forEach(u=>{
     const opt = document.createElement('option');
     opt.value = u; opt.textContent = u;
     if(u===uCur) opt.selected=true;
@@ -2269,7 +2292,13 @@ function renderSaran(){
   // Update unit filter dropdown in saran — sinkronkan dengan filter global
   const unitSel = document.getElementById('saran-unit-filter');
   if(unitSel){
-    const units = [...new Set(liveEntFilt.map(e=>e.unit).filter(Boolean))].sort();
+    // Pakai daftar tetap sesuai form survei
+    const units = [
+      'IGD','ICU/HCU','Kamar Operasi','Ruang Bersalin','Rawat Jalan/Poliklinik',
+      'Unit Dialisis','Rawat Inap Lantai 1','Rawat Inap Lantai 2','Rawat Inap Lantai 3',
+      'Ruang Bayi','Laboratorium','Radiologi','Farmasi Rawat Jalan','Farmasi Rawat Inap',
+      'Pendaftaran','Gizi','Rekam Medis','Kasir','Petugas Parkir','Petugas Kebersihan','Satpam',
+    ];
     // Jika ada filter unit global, paksa saran-unit-filter mengikutinya
     const globalUnit = activeFilter.unit || '';
     const cur = globalUnit || unitSel.value;
