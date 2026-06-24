@@ -805,8 +805,8 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzs3GMOQu44zWgLilCaqECf
         <option>IGD</option><option>ICU/HCU</option><option>Kamar Operasi</option><option>Ruang Bersalin</option>
         <option>Rawat Jalan/Poliklinik</option><option>Unit Dialisis</option><option>Rawat Inap Lantai 1</option>
         <option>Rawat Inap Lantai 2</option><option>Rawat Inap Lantai 3</option><option>Ruang Bayi</option>
-        <option>Laboratorium</option><option>Radiologi</option><option>Farmasi Rawat Jalan</option>
-        <option>Farmasi Rawat Inap</option><option>Pendaftaran</option><option>Gizi</option>
+        <option>Laboratorium</option><option>Radiologi</option><option>Farmasi</option>
+        <option>Pendaftaran</option><option>Gizi</option>
         <option>Rekam Medis</option><option>Kasir</option><option>Petugas Parkir</option>
         <option>Petugas Kebersihan</option><option>Satpam</option><option>Lainnya</option>
       </select>
@@ -901,8 +901,7 @@ const TARGET_SAMPEL = [
   {unit:'Ruang Bayi',  targetS:225, targetB:38, aliases:['Ruang Bayi','R Bayi']},
   {unit:'Laboratorium',targetS:369, targetB:62, aliases:['Laboratorium','Lab','Unit Laboratorium']},
   {unit:'Radiologi',   targetS:352, targetB:59, aliases:['Radiologi','Ronsen','Rontgen','Unit Radiologi']},
-  {unit:'Farmasi Rawat Jalan',targetS:190,targetB:32,aliases:['Farmasi Rawat Jalan','Farmasi Rajal','Instalasi Farmasi Rawat Jalan']},
-  {unit:'Farmasi Rawat Inap', targetS:190,targetB:32,aliases:['Farmasi Rawat Inap','Farmasi Ranap','Instalasi Farmasi Rawat Inap','Instalasi Farmasi Rawat inap']},
+  {unit:'Farmasi',targetS:381,targetB:64,aliases:['Farmasi','Farmasi Rawat Jalan','Farmasi Rajal','Instalasi Farmasi Rawat Jalan','Farmasi Rawat Inap','Farmasi Ranap','Instalasi Farmasi Rawat Inap','Instalasi Farmasi Rawat inap']},
   {unit:'Pendaftaran', targetS:382, targetB:64, aliases:['Pendaftaran','FO','Front Office','Pendaftaran /Front Office']},
   {unit:'Gizi',        targetS:325, targetB:54, aliases:['Gizi','Unit Gizi']},
   {unit:'Kasir',       targetS:382, targetB:64, aliases:['Kasir']},
@@ -1066,8 +1065,7 @@ function buildFilterOptions(){
     'Ruang Bayi',
     'Laboratorium',
     'Radiologi',
-    'Farmasi Rawat Jalan',
-    'Farmasi Rawat Inap',
+    'Farmasi',
     'Pendaftaran',
     'Gizi',
     'Rekam Medis',
@@ -2332,7 +2330,7 @@ function renderSaran(){
     const units = [
       'IGD','ICU/HCU','Kamar Operasi','Ruang Bersalin','Rawat Jalan/Poliklinik',
       'Unit Dialisis','Rawat Inap Lantai 1','Rawat Inap Lantai 2','Rawat Inap Lantai 3',
-      'Ruang Bayi','Laboratorium','Radiologi','Farmasi Rawat Jalan','Farmasi Rawat Inap',
+      'Ruang Bayi','Laboratorium','Radiologi','Farmasi',
       'Pendaftaran','Gizi','Rekam Medis','Kasir','Petugas Parkir','Petugas Kebersihan','Satpam',
     ];
     // Jika ada filter unit global, paksa saran-unit-filter mengikutinya
